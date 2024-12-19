@@ -31,7 +31,7 @@ TEST(VectorOfUniqueTest, ConstructorInitializesFromIterators) {
               ::testing::UnorderedElementsAreArray(expect_vec));
 }
 
-TEST(DequeOfUniqueTest, ConstructorWithInitializerListChecksVectorAndSet) {
+TEST(VectorOfUniqueTest, ConstructorWithInitializerListChecksVectorAndSet) {
   containerofunique::vector_of_unique vou1 = {1};
   containerofunique::vector_of_unique vou2 = {1, 2};
   containerofunique::vector_of_unique vou3 = {1, 2, 3, 3};  // duplicate elements
@@ -52,7 +52,7 @@ TEST(DequeOfUniqueTest, ConstructorWithInitializerListChecksVectorAndSet) {
               ::testing::UnorderedElementsAreArray(dq3));
 }
 
-TEST(DequeOfUniqueTest, CopyConstructor) {
+TEST(VectorOfUniqueTest, CopyConstructor) {
   containerofunique::vector_of_unique vou1 = {1, 2, 3, 4};
   containerofunique::vector_of_unique<int> vou2(vou1);
   std::vector<int> dq = {1, 2, 3, 4};
@@ -62,14 +62,14 @@ TEST(DequeOfUniqueTest, CopyConstructor) {
            // [performance-unnecessary-copy-initialization,-warnings-as-errors]
 }
 
-TEST(DequeOfUniqueTest, MoveConstructor) {
+TEST(VectorOfUniqueTest, MoveConstructor) {
   containerofunique::vector_of_unique<int> vou1 = {1, 2, 3, 4};
   containerofunique::vector_of_unique<int> vou2(std::move(vou1));
   std::vector<int> dq = {1, 2, 3, 4};
   EXPECT_EQ(vou2.vector(), dq);
 }
 
-TEST(DequeOfUniqueTest, CopyAssignmentOperator) {
+TEST(VectorOfUniqueTest, CopyAssignmentOperator) {
   containerofunique::vector_of_unique<int> vou1 = {1, 2, 3, 4};
   containerofunique::vector_of_unique<int> vou2 = vou1;
   std::vector<int> dq = {1, 2, 3, 4};
@@ -82,7 +82,7 @@ TEST(DequeOfUniqueTest, CopyAssignmentOperator) {
            // [performance-unnecessary-copy-initialization,-warnings-as-errors]
 }
 
-TEST(DequeOfUniqueTest, MoveAssignmentOperator) {
+TEST(VectorOfUniqueTest, MoveAssignmentOperator) {
   containerofunique::vector_of_unique<int> vou1 = {1, 2, 3, 4};
   containerofunique::vector_of_unique<int> vou2 = std::move(vou1);
   std::vector<int> dq = {1, 2, 3, 4};
@@ -92,10 +92,18 @@ TEST(DequeOfUniqueTest, MoveAssignmentOperator) {
               ::testing::UnorderedElementsAreArray(dq));
 }
 
-TEST(DequeOfUniqueTest, InitializerListAssignmentOperator) {
+TEST(VectorOfUniqueTest, InitializerListAssignmentOperator) {
   containerofunique::vector_of_unique<int> vou = {1, 2, 3, 4};
   std::vector<int> dq = {1, 2, 3, 4};
   EXPECT_EQ(vou.vector(), dq);
   EXPECT_THAT(std::vector<int>(vou.set().begin(), vou.set().end()),
               ::testing::UnorderedElementsAreArray(dq));
+}
+
+TEST(VectorOfUniqueTest, ElementAccess) {
+  containerofunique::vector_of_unique<int> vou = {1, 2, 3, 4};
+  EXPECT_EQ(vou.front(), 1);
+  EXPECT_EQ(vou.at(1), 2);
+  EXPECT_EQ(vou[2], 3);
+  EXPECT_EQ(vou.back(), 4);
 }
