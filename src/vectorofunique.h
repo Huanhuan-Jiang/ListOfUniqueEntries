@@ -77,6 +77,13 @@ class vector_of_unique {
     return vector_.erase(pos);
   }
 
+  const_iterator erase(const_iterator first, const_iterator last) {
+    for (auto it = first; it != last; ++it) {
+      set_.erase(*it);
+    }
+    return vector_.erase(first, last);
+  }
+
   bool push_back(const T &value) {
     if (set_.insert(value).second) {
       vector_.push_back(value);
