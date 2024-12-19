@@ -68,3 +68,34 @@ TEST(DequeOfUniqueTest, MoveConstructor) {
   std::vector<int> dq = {1, 2, 3, 4};
   EXPECT_EQ(vou2.vector(), dq);
 }
+
+TEST(DequeOfUniqueTest, CopyAssignmentOperator) {
+  containerofunique::vector_of_unique<int> vou1 = {1, 2, 3, 4};
+  containerofunique::vector_of_unique<int> vou2 = vou1;
+  std::vector<int> dq = {1, 2, 3, 4};
+
+  EXPECT_EQ(vou2.vector(), vou1.vector());
+  EXPECT_THAT(std::vector<int>(vou2.set().begin(), vou2.set().end()),
+              ::testing::UnorderedElementsAreArray(dq));
+  vou1.push_back(
+      5);  // This is used to suppress warning of
+           // [performance-unnecessary-copy-initialization,-warnings-as-errors]
+}
+
+TEST(DequeOfUniqueTest, MoveAssignmentOperator) {
+  containerofunique::vector_of_unique<int> vou1 = {1, 2, 3, 4};
+  containerofunique::vector_of_unique<int> vou2 = std::move(vou1);
+  std::vector<int> dq = {1, 2, 3, 4};
+
+  EXPECT_EQ(vou2.vector(), dq);
+  EXPECT_THAT(std::vector<int>(vou2.set().begin(), vou2.set().end()),
+              ::testing::UnorderedElementsAreArray(dq));
+}
+
+TEST(DequeOfUniqueTest, InitializerListAssignmentOperator) {
+  containerofunique::vector_of_unique<int> vou = {1, 2, 3, 4};
+  std::vector<int> dq = {1, 2, 3, 4};
+  EXPECT_EQ(vou.vector(), dq);
+  EXPECT_THAT(std::vector<int>(vou.set().begin(), vou.set().end()),
+              ::testing::UnorderedElementsAreArray(dq));
+}
