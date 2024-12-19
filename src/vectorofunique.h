@@ -27,7 +27,7 @@ class vector_of_unique {
 
   // Member functions
   // Constructor
-  vector_of_unique() = default;
+  vector_of_unique() noexcept = default;
 
   template <class input_it>
   vector_of_unique(input_it first, input_it last) {
@@ -75,6 +75,30 @@ class vector_of_unique {
   const_iterator erase(const_iterator pos) {
     set_.erase(*pos);
     return vector_.erase(pos);
+  }
+
+  bool push_back(const T &value) {
+    if (set_.insert(value).second) {
+      vector_.push_back(value);
+      return true;
+    }
+    return false;
+  }
+
+  bool push_back(T &&value) {
+    auto temp = std::move(value);
+    if (set_.insert(temp).second) {
+      vector_.push_back(std::move(temp));
+      return true;
+    }
+    return false;
+  }
+
+  template <class input_it>
+  void _push_back(input_it first, input_it last) {
+    while (first != last) {
+      push_back(*first++);
+    }
   }
   // Destructor
   ~vector_of_unique() = default;

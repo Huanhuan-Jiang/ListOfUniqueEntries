@@ -20,3 +20,13 @@ TEST(VectorOfUniqueTest, DefaultConstructor) {
   EXPECT_EQ(vou.vector(), emptydq);
   EXPECT_THAT(vou.set(), ::testing::UnorderedElementsAreArray(emptyset));
 }
+
+TEST(VectorOfUniqueTest, ConstructorInitializesFromIterators) {
+  std::vector<int> vec = {3, 1, 2, 3, 4, 5};
+  std::vector<int> expect_vec = {3, 1, 2, 4, 5};
+  containerofunique::vector_of_unique<int> vou(vec.begin(), vec.end());
+
+  EXPECT_EQ(vou.vector(), expect_vec);
+  EXPECT_THAT(std::vector<int>(vou.set().begin(), vou.set().end()),
+              ::testing::UnorderedElementsAreArray(expect_vec));
+}
