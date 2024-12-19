@@ -100,6 +100,19 @@ class vector_of_unique {
       push_back(*first++);
     }
   }
+
+  bool _push_back(const vector_of_unique<T, Hash> &other) {
+    return _push_back(other.vector_);
+  }
+
+  bool _push_back(const std::vector<T> &other) {
+    bool any_added = false;
+    for (const auto &entry : other) {
+      auto added = push_back(entry);
+      any_added = any_added || added;
+    }
+    return any_added;
+  }
   // Destructor
   ~vector_of_unique() = default;
 

@@ -32,22 +32,39 @@ TEST(VectorOfUniqueTest, ConstructorInitializesFromIterators) {
 }
 
 TEST(DequeOfUniqueTest, ConstructorWithInitializerListChecksVectorAndSet) {
-  containerofunique::vector_of_unique dou1 = {1};
-  containerofunique::vector_of_unique dou2 = {1, 2};
-  containerofunique::vector_of_unique dou3 = {1, 2, 3, 3};  // duplicate elements
+  containerofunique::vector_of_unique vou1 = {1};
+  containerofunique::vector_of_unique vou2 = {1, 2};
+  containerofunique::vector_of_unique vou3 = {1, 2, 3, 3};  // duplicate elements
 
   std::vector<int> dq1 = {1};
   std::vector<int> dq2 = {1, 2};
   std::vector<int> dq3 = {1, 2, 3};
 
-  EXPECT_EQ(dou1.vector(), dq1);
-  EXPECT_EQ(dou2.vector(), dq2);
-  EXPECT_EQ(dou3.vector(), dq3);
+  EXPECT_EQ(vou1.vector(), dq1);
+  EXPECT_EQ(vou2.vector(), dq2);
+  EXPECT_EQ(vou3.vector(), dq3);
 
-  EXPECT_THAT(std::vector<int>(dou1.set().begin(), dou1.set().end()),
+  EXPECT_THAT(std::vector<int>(vou1.set().begin(), vou1.set().end()),
               ::testing::UnorderedElementsAreArray(dq1));
-  EXPECT_THAT(std::vector<int>(dou2.set().begin(), dou2.set().end()),
+  EXPECT_THAT(std::vector<int>(vou2.set().begin(), vou2.set().end()),
               ::testing::UnorderedElementsAreArray(dq2));
-  EXPECT_THAT(std::vector<int>(dou3.set().begin(), dou3.set().end()),
+  EXPECT_THAT(std::vector<int>(vou3.set().begin(), vou3.set().end()),
               ::testing::UnorderedElementsAreArray(dq3));
+}
+
+TEST(DequeOfUniqueTest, CopyConstructor) {
+  containerofunique::vector_of_unique vou1 = {1, 2, 3, 4};
+  containerofunique::vector_of_unique<int> vou2(vou1);
+  std::vector<int> dq = {1, 2, 3, 4};
+  EXPECT_EQ(vou2.vector(), vou1.vector());
+  vou1.push_back(
+      5);  // This is used to suppress warning of
+           // [performance-unnecessary-copy-initialization,-warnings-as-errors]
+}
+
+TEST(DequeOfUniqueTest, MoveConstructor) {
+  containerofunique::vector_of_unique<int> vou1 = {1, 2, 3, 4};
+  containerofunique::vector_of_unique<int> vou2(std::move(vou1));
+  std::vector<int> dq = {1, 2, 3, 4};
+  EXPECT_EQ(vou2.vector(), dq);
 }
