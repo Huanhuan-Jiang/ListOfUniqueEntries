@@ -13,10 +13,10 @@
 #include "vectorofunique.h"
 
 TEST(VectorOfUniqueTest, DefaultConstructor) {
-  containerofunique::vector_of_unique<int> dou;
+  containerofunique::vector_of_unique<int> vou;
   std::vector<int> emptydq;
   std::unordered_set<int> emptyset;
 
-  EXPECT_EQ(dou.vector(), emptydq);
-  EXPECT_THAT(dou.set(), ::testing::UnorderedElementsAreArray(emptyset));
+  EXPECT_EQ(vou.vector(), emptydq);
+  EXPECT_THAT(vou.set(), ::testing::UnorderedElementsAreArray(emptyset));
 }
