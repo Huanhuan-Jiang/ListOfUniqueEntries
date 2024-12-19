@@ -107,3 +107,16 @@ TEST(VectorOfUniqueTest, ElementAccess) {
   EXPECT_EQ(vou[2], 3);
   EXPECT_EQ(vou.back(), 4);
 }
+
+TEST(VectorOfUniqueTest, Iterators) {
+  containerofunique::vector_of_unique<int> vou = {1, 2, 3, 4};
+  EXPECT_EQ(*vou.cbegin(), 1);
+  EXPECT_EQ(*--vou.cend(), 4);
+  EXPECT_EQ(*vou.crbegin(), 4);
+  EXPECT_EQ(*--vou.crend(), 1);
+
+  EXPECT_TRUE((std::same_as<decltype(*vou.cbegin()), const int&>));
+  EXPECT_TRUE((std::same_as<decltype(*vou.cend()), const int&>));
+  EXPECT_TRUE((std::same_as<decltype(*vou.crbegin()), const int&>));
+  EXPECT_TRUE((std::same_as<decltype(*vou.crend()), const int&>));
+}
