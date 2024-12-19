@@ -120,3 +120,20 @@ TEST(VectorOfUniqueTest, Iterators) {
   EXPECT_TRUE((std::same_as<decltype(*vou.crbegin()), const int&>));
   EXPECT_TRUE((std::same_as<decltype(*vou.crend()), const int&>));
 }
+
+TEST(VectorOfUniqueTest, ClearAndErase) {
+  containerofunique::vector_of_unique<int> vou1 = {1, 2, 3, 4, 5, 6};
+  std::vector<int> dq1 = {2, 3, 4, 5, 6};
+  std::unordered_set<int> set1 = {2, 3, 4, 5, 6};
+
+  vou1.erase(vou1.cbegin());
+  EXPECT_EQ(vou1.vector(), dq1);
+  EXPECT_THAT(vou1.set(), ::testing::UnorderedElementsAreArray(set1));
+
+  std::vector<int> dq2 = {4, 5, 6};
+  std::unordered_set<int> set2 = {4, 5, 6};
+
+  vou1.erase(vou1.cbegin(), vou1.cbegin() + 2);
+  EXPECT_EQ(vou1.vector(), dq2);
+  EXPECT_THAT(vou1.set(), ::testing::UnorderedElementsAreArray(set2));
+}
