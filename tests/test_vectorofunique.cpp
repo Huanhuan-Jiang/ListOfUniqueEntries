@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <compare>
 #include <concepts>
-#include <vector>
 #include <stdexcept>
 #include <unordered_set>
 #include <utility>

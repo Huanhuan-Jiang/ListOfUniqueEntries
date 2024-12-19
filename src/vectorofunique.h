@@ -1,28 +1,26 @@
 #pragma once
 
-#include <functional> // For std::hash
+#include <functional>  // For std::hash
 #include <initializer_list>
-#include <optional> // For std::nullopt
+#include <optional>  // For std::nullopt
 #include <unordered_set>
-#include <utility> // For std::swap
+#include <utility>  // For std::swap
 #include <vector>
 
 namespace containerofunique {
 
 template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>>
 class vector_of_unique {
-public:
+ public:
   // *Member types
   using value_type = T;
   using key_type = T;
   using hasher = Hash;
   using key_equal = KeyEqual;
-  using reference = value_type &;
   using const_reference = const value_type &;
   using VectorType = std::vector<T>;
   using UnorderedSetType = std::unordered_set<T, Hash, KeyEqual>;
   using size_type = typename VectorType::size_type;
-  using iterator = typename VectorType::iterator;
   using const_iterator = typename VectorType::const_iterator;
   using reverse_iterator = typename VectorType::reverse_iterator;
   using const_reverse_iterator = typename VectorType::const_reverse_iterator;
@@ -31,7 +29,8 @@ public:
   // Constructor
   vector_of_unique() = default;
 
-  template <class input_it> vector_of_unique(input_it first, input_it last) {
+  template <class input_it>
+  vector_of_unique(input_it first, input_it last) {
     _push_back(first, last);
   }
 
@@ -84,8 +83,8 @@ public:
   const VectorType &vector() const { return vector_; }
   const UnorderedSetType &set() const { return set_; }
 
-private:
+ private:
   VectorType vector_;
   UnorderedSetType set_;
-}; // class vector_of_unique
-}; // namespace containerofunique
+};  // class vector_of_unique
+};  // namespace containerofunique

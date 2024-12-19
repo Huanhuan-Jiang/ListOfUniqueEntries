@@ -12,18 +12,23 @@ add_subdirectory(thirdparty/googletest)
 add_executable(dequeofuniquetest tests/test_dequeofunique.cpp)
 add_executable(vectorofuniquetest tests/test_vectorofunique.cpp)
 
-target_link_libraries(dequeofuniquetest vectorofuniquetest PRIVATE 
+add_library(GTestCommon INTERFACE)
+target_link_libraries(GTestCommon INTERFACE 
     GTest::gtest_main 
     GTest::gmock_main
 )
 
-target_link_libraries(dequeofuniquetest vectorofuniquetest PRIVATE 
-containerofunique)
+target_link_libraries(dequeofuniquetest PRIVATE GTestCommon)
+target_link_libraries(vectorofuniquetest PRIVATE GTestCommon)
+
+target_link_libraries(dequeofuniquetest PRIVATE containerofunique)
+target_link_libraries(vectorofuniquetest PRIVATE containerofunique)
 
 enable_testing()
 
 include(GoogleTest)
 gtest_discover_tests(dequeofuniquetest)
+gtest_discover_tests(vectorofuniquetest)
 
 # Build executables for different C++ versions
 create_test_executable(dequeofuniquetest_cxx14 14)  
