@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <compare>
 #include <concepts>
+#include <numeric>
 #include <stdexcept>
 #include <unordered_set>
 #include <utility>
@@ -23,18 +24,17 @@ TEST(VectorOfUniqueTest, DefaultConstructor) {
 
 TEST(VectorOfUniqueTest, ConstructorInitializesFromIterators) {
   std::vector<int> vec = {3, 1, 2, 3, 4, 5};
-  std::vector<int> expect_vec = {3, 1, 2, 4, 5};
   containerofunique::vector_of_unique<int> vou(vec.begin(), vec.end());
 
-  EXPECT_EQ(vou.vector(), expect_vec);
+  EXPECT_EQ(vou.vector(), vec);
   EXPECT_THAT(std::vector<int>(vou.set().begin(), vou.set().end()),
-              ::testing::UnorderedElementsAreArray(expect_vec));
+              ::testing::UnorderedElementsAreArray(vec));
 }
 
 TEST(VectorOfUniqueTest, ConstructorWithInitializerListChecksVectorAndSet) {
   containerofunique::vector_of_unique vou1 = {1};
   containerofunique::vector_of_unique vou2 = {1, 2};
-  containerofunique::vector_of_unique vou3 = {1, 2, 3, 3};  // duplicate elements
+  containerofunique::vector_of_unique vou3 = {1, 2, 3, 3}; // duplicate elements
 
   std::vector<int> dq1 = {1};
   std::vector<int> dq2 = {1, 2};
@@ -52,14 +52,44 @@ TEST(VectorOfUniqueTest, ConstructorWithInitializerListChecksVectorAndSet) {
               ::testing::UnorderedElementsAreArray(dq3));
 }
 
-TEST(VectorOfUniqueTest, CopyConstructor) {
-  containerofunique::vector_of_unique vou1 = {1, 2, 3, 4};
+TEST(VectorOfUniqueTest, CopyConstructor_EmptyVector) {
+  containerofunique::vector_of_unique<int> vou1;
+  // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
   containerofunique::vector_of_unique<int> vou2(vou1);
-  std::vector<int> dq = {1, 2, 3, 4};
-  EXPECT_EQ(vou2.vector(), vou1.vector());
-  vou1.push_back(
-      5);  // This is used to suppress warning of
-           // [performance-unnecessary-copy-initialization,-warnings-as-errors]
+  EXPECT_TRUE(vou2.vector().empty());
+  EXPECT_TRUE(vou2.set().empty());
+}
+
+TEST(VectorOfUniqueTest, CopyConstructor_SingleElement) {
+  containerofunique::vector_of_unique<int> vou1 = {42};
+  // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
+  containerofunique::vector_of_unique<int> vou2(vou1);
+  std::vector<int> vec = {42};
+  EXPECT_EQ(vou2.vector(), vec);
+  EXPECT_THAT(vou2.set(), ::testing::UnorderedElementsAreArray(vec));
+}
+
+TEST(VectorOfUniqueTest, CopyConstructor_Independence) {
+  containerofunique::vector_of_unique<int> vou1 = {1, 2, 3};
+  containerofunique::vector_of_unique<int> vou2(vou1);
+
+  vou1.push_back(4); // Modify the original
+  EXPECT_EQ(vou1.vector(), std::vector<int>({1, 2, 3, 4}));
+  EXPECT_EQ(vou2.vector(), std::vector<int>({1, 2, 3}));
+}
+
+TEST(VectorOfUniqueTest, CopyConstructor_LargeData) {
+  std::vector<int> large_data(1000);
+  std::iota(large_data.begin(), large_data.end(), 0);
+
+  // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
+  containerofunique::vector_of_unique<int> vou1(large_data.begin(),
+                                                large_data.end());
+  // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
+  containerofunique::vector_of_unique<int> vou2(vou1);
+
+  EXPECT_EQ(vou1.vector(), vou2.vector());
+  EXPECT_THAT(vou2.set(), ::testing::UnorderedElementsAreArray(large_data));
 }
 
 TEST(VectorOfUniqueTest, MoveConstructor) {
@@ -78,8 +108,8 @@ TEST(VectorOfUniqueTest, CopyAssignmentOperator) {
   EXPECT_THAT(std::vector<int>(vou2.set().begin(), vou2.set().end()),
               ::testing::UnorderedElementsAreArray(dq));
   vou1.push_back(
-      5);  // This is used to suppress warning of
-           // [performance-unnecessary-copy-initialization,-warnings-as-errors]
+      5); // This is used to suppress warning of
+          // [performance-unnecessary-copy-initialization,-warnings-as-errors]
 }
 
 TEST(VectorOfUniqueTest, MoveAssignmentOperator) {
@@ -108,6 +138,25 @@ TEST(VectorOfUniqueTest, ElementAccess) {
   EXPECT_EQ(vou.back(), 4);
 }
 
+TEST(VectorOfUniqueTest, At_OutOfRange) {
+  containerofunique::vector_of_unique<int> vou = {1, 2, 3, 4};
+  const containerofunique::vector_of_unique<std::string> vou_const = {"hello",
+                                                                      "world"};
+  EXPECT_THROW(vou.at(4), std::out_of_range);
+  EXPECT_THROW(vou_const.at(2), std::out_of_range);
+}
+
+TEST(VectorOfUniqueTest, ElementAccess_ConstVector) {
+  const containerofunique::vector_of_unique<std::string> vou = {"hello",
+                                                                "world"};
+  EXPECT_EQ(vou.front(), "hello");
+  EXPECT_EQ(vou.at(0), "hello");
+  EXPECT_EQ(vou.at(1), "world");
+  EXPECT_EQ(vou[0], "hello");
+  EXPECT_EQ(vou[1], "world");
+  EXPECT_EQ(vou.back(), "world");
+}
+
 TEST(VectorOfUniqueTest, Iterators) {
   containerofunique::vector_of_unique<int> vou = {1, 2, 3, 4};
   EXPECT_EQ(*vou.cbegin(), 1);
@@ -115,10 +164,10 @@ TEST(VectorOfUniqueTest, Iterators) {
   EXPECT_EQ(*vou.crbegin(), 4);
   EXPECT_EQ(*--vou.crend(), 1);
 
-  EXPECT_TRUE((std::same_as<decltype(*vou.cbegin()), const int&>));
-  EXPECT_TRUE((std::same_as<decltype(*vou.cend()), const int&>));
-  EXPECT_TRUE((std::same_as<decltype(*vou.crbegin()), const int&>));
-  EXPECT_TRUE((std::same_as<decltype(*vou.crend()), const int&>));
+  EXPECT_TRUE((std::same_as<decltype(*vou.cbegin()), const int &>));
+  EXPECT_TRUE((std::same_as<decltype(*vou.cend()), const int &>));
+  EXPECT_TRUE((std::same_as<decltype(*vou.crbegin()), const int &>));
+  EXPECT_TRUE((std::same_as<decltype(*vou.crend()), const int &>));
 }
 
 TEST(VectorOfUniqueTest, ClearAndErase) {
