@@ -91,6 +91,45 @@ public:
     return vector_.erase(first, last);
   }
 
+  std::pair<const_iterator, bool> insert(const_iterator pos, const T &value) {
+    if (set_.insert(value).second) {
+      return std::make_pair(vector_.insert(pos, value), true);
+    }
+    return std::make_pair(pos, false);
+  }
+
+  std::pair<const_iterator, bool> insert(const_iterator pos, T &&value) {
+    if (set_.insert(value).second) {
+      return std::make_pair(vector_.insert(pos, std::move(value)), true);
+    }
+    return std::make_pair(pos, false);
+  }
+
+  template <class input_it>
+  const_iterator insert(const_iterator pos, input_it first, input_it last) {
+    auto pos_index = pos - vector_.cbegin();
+    auto first_inserted_index = pos_index;
+    auto temp_pos = vector_.begin() + (pos - vector_.cbegin());
+    auto any_inserted = false;
+
+    for (auto it = first; it != last; ++it) {
+      if (set_.insert(*it).second) {
+        temp_pos = vector_.insert(temp_pos, *it);
+        if (!any_inserted) {
+          first_inserted_index = temp_pos - vector_.cbegin();
+          any_inserted = true;
+        }
+        ++temp_pos;
+      }
+    }
+    return any_inserted ? first_inserted_index + vector_.cbegin()
+                        : pos_index + vector_.cbegin();
+  }
+
+  const_iterator insert(const_iterator pos, std::initializer_list<T> ilist) {
+    return insert(pos, ilist.begin(), ilist.end());
+  }
+
   bool push_back(const T &value) {
     if (set_.insert(value).second) {
       vector_.push_back(value);

@@ -15,10 +15,10 @@
 
 TEST(VectorOfUniqueTest, DefaultConstructor) {
   containerofunique::vector_of_unique<int> vou;
-  std::vector<int> emptydq;
+  std::vector<int> emptyvec;
   std::unordered_set<int> emptyset;
 
-  EXPECT_EQ(vou.vector(), emptydq);
+  EXPECT_EQ(vou.vector(), emptyvec);
   EXPECT_THAT(vou.set(), ::testing::UnorderedElementsAreArray(emptyset));
 }
 
@@ -42,20 +42,20 @@ TEST(VectorOfUniqueTest, ConstructorWithInitializerListChecksVectorAndSet) {
   containerofunique::vector_of_unique<int> vou3 = {1, 2, 3,
                                                    3}; // duplicate elements
 
-  std::vector<int> dq1 = {1};
-  std::vector<int> dq2 = {1, 2};
-  std::vector<int> dq3 = {1, 2, 3};
+  std::vector<int> vec1 = {1};
+  std::vector<int> vec2 = {1, 2};
+  std::vector<int> vec3 = {1, 2, 3};
 
-  EXPECT_EQ(vou1.vector(), dq1);
-  EXPECT_EQ(vou2.vector(), dq2);
-  EXPECT_EQ(vou3.vector(), dq3);
+  EXPECT_EQ(vou1.vector(), vec1);
+  EXPECT_EQ(vou2.vector(), vec2);
+  EXPECT_EQ(vou3.vector(), vec3);
 
   EXPECT_THAT(std::vector<int>(vou1.set().begin(), vou1.set().end()),
-              ::testing::UnorderedElementsAreArray(dq1));
+              ::testing::UnorderedElementsAreArray(vec1));
   EXPECT_THAT(std::vector<int>(vou2.set().begin(), vou2.set().end()),
-              ::testing::UnorderedElementsAreArray(dq2));
+              ::testing::UnorderedElementsAreArray(vec2));
   EXPECT_THAT(std::vector<int>(vou3.set().begin(), vou3.set().end()),
-              ::testing::UnorderedElementsAreArray(dq3));
+              ::testing::UnorderedElementsAreArray(vec3));
 }
 
 TEST(VectorOfUniqueTest, CopyConstructor_EmptyVector) {
@@ -101,18 +101,18 @@ TEST(VectorOfUniqueTest, CopyConstructor_LargeData) {
 TEST(VectorOfUniqueTest, MoveConstructor) {
   containerofunique::vector_of_unique<int> vou1 = {1, 2, 3, 4};
   containerofunique::vector_of_unique<int> vou2(std::move(vou1));
-  std::vector<int> dq = {1, 2, 3, 4};
-  EXPECT_EQ(vou2.vector(), dq);
+  std::vector<int> vec = {1, 2, 3, 4};
+  EXPECT_EQ(vou2.vector(), vec);
 }
 
 TEST(VectorOfUniqueTest, CopyAssignmentOperator) {
   containerofunique::vector_of_unique<int> vou1 = {1, 2, 3, 4};
   containerofunique::vector_of_unique<int> vou2 = vou1;
-  std::vector<int> dq = {1, 2, 3, 4};
+  std::vector<int> vec = {1, 2, 3, 4};
 
   EXPECT_EQ(vou2.vector(), vou1.vector());
   EXPECT_THAT(std::vector<int>(vou2.set().begin(), vou2.set().end()),
-              ::testing::UnorderedElementsAreArray(dq));
+              ::testing::UnorderedElementsAreArray(vec));
   vou1.push_back(
       5); // This is used to suppress warning of
           // [performance-unnecessary-copy-initialization,-warnings-as-errors]
@@ -121,19 +121,19 @@ TEST(VectorOfUniqueTest, CopyAssignmentOperator) {
 TEST(VectorOfUniqueTest, MoveAssignmentOperator) {
   containerofunique::vector_of_unique<int> vou1 = {1, 2, 3, 4};
   containerofunique::vector_of_unique<int> vou2 = std::move(vou1);
-  std::vector<int> dq = {1, 2, 3, 4};
+  std::vector<int> vec = {1, 2, 3, 4};
 
-  EXPECT_EQ(vou2.vector(), dq);
+  EXPECT_EQ(vou2.vector(), vec);
   EXPECT_THAT(std::vector<int>(vou2.set().begin(), vou2.set().end()),
-              ::testing::UnorderedElementsAreArray(dq));
+              ::testing::UnorderedElementsAreArray(vec));
 }
 
 TEST(VectorOfUniqueTest, InitializerListAssignmentOperator) {
   containerofunique::vector_of_unique<int> vou = {1, 2, 3, 4};
-  std::vector<int> dq = {1, 2, 3, 4};
-  EXPECT_EQ(vou.vector(), dq);
+  std::vector<int> vec = {1, 2, 3, 4};
+  EXPECT_EQ(vou.vector(), vec);
   EXPECT_THAT(std::vector<int>(vou.set().begin(), vou.set().end()),
-              ::testing::UnorderedElementsAreArray(dq));
+              ::testing::UnorderedElementsAreArray(vec));
 }
 
 TEST(VectorOfUniqueTest, ElementAccess) {
@@ -250,32 +250,150 @@ TEST(VectorOfUniqueTest, Erase_FromEmptyContainer) {
 
 TEST(VectorOfUniqueTest, EraseEmptyRange) {
   containerofunique::vector_of_unique<int> vou1 = {1, 2, 3, 4, 5, 6};
-  std::vector<int> dq2 = {1, 2, 3, 4, 5, 6};
+  std::vector<int> vec2 = {1, 2, 3, 4, 5, 6};
   std::unordered_set<int> set2 = {1, 2, 3, 4, 5, 6};
 
   auto result = vou1.erase(vou1.cbegin(), vou1.cbegin());
   EXPECT_EQ(result, vou1.cbegin());
-  EXPECT_EQ(vou1.vector(), dq2);
+  EXPECT_EQ(vou1.vector(), vec2);
   EXPECT_THAT(vou1.set(), ::testing::UnorderedElementsAreArray(set2));
 }
 
 TEST(VectorOfUniqueTest, EraseRangeOfElements) {
   containerofunique::vector_of_unique<int> vou1 = {1, 2, 3, 4, 5, 6};
-  std::vector<int> dq2 = {4, 5, 6};
+  std::vector<int> vec2 = {4, 5, 6};
   std::unordered_set<int> set2 = {4, 5, 6};
 
   vou1.erase(vou1.cbegin(), vou1.cbegin() + 3);
-  EXPECT_EQ(vou1.vector(), dq2);
+  EXPECT_EQ(vou1.vector(), vec2);
   EXPECT_THAT(vou1.set(), ::testing::UnorderedElementsAreArray(set2));
 }
 
 TEST(VectorOfUniqueTest, EraseAllElements) {
   containerofunique::vector_of_unique<int> vou1 = {1, 2, 3, 4, 5, 6};
-  std::vector<int> dq2 = {};
+  std::vector<int> vec2 = {};
   std::unordered_set<int> set2 = {};
 
   auto result = vou1.erase(vou1.cbegin(), vou1.cend());
   EXPECT_EQ(result, vou1.cend());
-  EXPECT_EQ(vou1.vector(), dq2);
+  EXPECT_EQ(vou1.vector(), vec2);
   EXPECT_THAT(vou1.set(), ::testing::UnorderedElementsAreArray(set2));
+}
+
+TEST(VectorOfUniqueTest, InsertLvalueRvalue) {
+  std::cout << "Test inserting a unique element" << '\n';
+  containerofunique::vector_of_unique<int> vou1 = {1};
+  std::vector<int> vec1 = {1};
+  auto result1 = vou1.insert(vou1.cbegin(), 2);
+  auto expected_result1 = vec1.insert(vec1.cbegin(), 2);
+  EXPECT_EQ(*result1.first, *expected_result1);
+  EXPECT_TRUE(result1.second);
+
+  std::cout << "Test inserting a duplicate element" << '\n';
+  containerofunique::vector_of_unique<int> vou2 = {1};
+  std::vector<int> vec2 = {1, 2};
+  auto result2 = vou2.insert(vou2.cbegin(), 1);
+  EXPECT_EQ(*result2.first, *vou2.cbegin());
+  EXPECT_FALSE(result2.second);
+
+  std::cout << "Test inserting a unique rvalue string element" << '\n';
+  containerofunique::vector_of_unique<std::string> vou3 = {"hello", "world"};
+  std::vector<std::string> vec3 = {"hello", "world"};
+  std::string str1 = "good";
+  auto expected_result3 = vec3.insert(vec3.cbegin(), std::move("good"));
+  auto result3 = vou3.insert(vou3.cbegin(), std::move(str1));
+  EXPECT_EQ(vou3.vector(),
+            (std::vector<std::string>{"good", "hello", "world"}));
+  EXPECT_EQ(*result3.first, *expected_result3);
+  EXPECT_TRUE(result3.second);
+
+  std::cout << "Test inserting a duplicate rvalue string element" << '\n';
+  containerofunique::vector_of_unique<std::string> vou4 = {"hello", "world"};
+  std::vector<std::string> vec4 = {"hello", "world"};
+  std::string str2 = "hello";
+  auto result4 = vou4.insert(vou4.cbegin(), std::move(str2));
+  EXPECT_EQ(vou4.vector(), vec4);
+  EXPECT_EQ(*result4.first, *vou4.cbegin());
+  EXPECT_FALSE(result4.second);
+}
+
+TEST(VectorOfUniqueTest, InsertRangeTest) {
+  containerofunique::vector_of_unique<std::string> vou5_1 = {"hello", "world"};
+  containerofunique::vector_of_unique<std::string> vou5_2 = {"good", "morning"};
+  containerofunique::vector_of_unique<std::string> vou5_3 = {"hello", "world"};
+  std::vector<std::string> vec5 = {"good", "morning", "hello", "world"};
+  auto result5_1 =
+      vou5_1.insert(vou5_1.cbegin(), vou5_2.cbegin(), vou5_2.cbegin() + 2);
+  EXPECT_EQ(vou5_1.vector(), vec5);
+  EXPECT_EQ(*result5_1, *vou5_1.cbegin());
+  auto result5_2 =
+      vou5_1.insert(vou5_1.cbegin(), vou5_3.cbegin(), vou5_3.cbegin() + 2);
+  EXPECT_EQ(vou5_1.vector(), vec5);
+  EXPECT_EQ(*result5_2, *(vou5_1.cbegin()));
+
+  containerofunique::vector_of_unique<std::string> vou6 = {"hello", "world"};
+  std::vector<std::string> vec6 = {"good", "morning", "hello", "world"};
+  auto result6_1 = vou6.insert(vou6.cbegin(), {"good", "morning"});
+  EXPECT_EQ(vou6.vector(), vec6);
+  EXPECT_EQ(*result6_1, *vou6.cbegin());
+  auto result6_2 = vou6.insert(vou6.cbegin(), {"good", "morning"});
+  EXPECT_EQ(vou6.vector(), vec6);
+  EXPECT_EQ(*result6_2, *vou6.cbegin());
+}
+
+TEST(VectorOfUniqueTest, InsertEmptyRange) {
+  containerofunique::vector_of_unique<std::string> vou1 = {"existing"};
+  std::vector<std::string> vec1 = {"existing"};
+  std::vector<std::string> vec2 = {"hello", "world", "apple", "fruit"};
+
+  auto result1 = vou1.insert(vou1.cbegin(), vec2.begin(), vec2.begin());
+  EXPECT_EQ(result1, vou1.cbegin());
+  EXPECT_EQ(vou1.vector(), vec1);
+
+  auto result2 = vou1.insert(vou1.cbegin(), {});
+  EXPECT_EQ(result2, vou1.cbegin());
+  EXPECT_EQ(vou1.vector(), vec1);
+}
+
+TEST(VectorOfUniqueTest, InsertAtEnd) {
+  containerofunique::vector_of_unique<std::string> vou = {"hello"};
+  auto result = vou.insert(vou.cend(), "world");
+  EXPECT_EQ(*result.first, vou.back());
+  EXPECT_EQ(result.second, true);
+  EXPECT_EQ(vou.vector(), (std::vector<std::string>{"hello", "world"}));
+}
+
+TEST(VectorOfUniqueTest, InsertAtBeginning) {
+  containerofunique::vector_of_unique<std::string> vou = {"world"};
+  auto result = vou.insert(vou.cbegin(), "hello");
+  EXPECT_EQ(*result.first, vou.front());
+  EXPECT_EQ(result.second, true);
+  EXPECT_EQ(vou.vector(), (std::vector<std::string>{"hello", "world"}));
+}
+
+TEST(VectorOfUniqueTest, InsertDuplicateElement) {
+  containerofunique::vector_of_unique<std::string> vou = {"hello", "world"};
+  auto result = vou.insert(vou.cend(), "hello");
+  EXPECT_EQ(result.first, vou.cend());
+  EXPECT_EQ(result.second, false);
+  EXPECT_EQ(vou.vector(), (std::vector<std::string>{"hello", "world"}));
+}
+
+TEST(VectorOfUniqueTest, InsertIntoEmptyVector) {
+  containerofunique::vector_of_unique<std::string> vou;
+  auto result = vou.insert(vou.cend(), "first");
+  EXPECT_EQ(*result.first, vou.front());
+  EXPECT_EQ(result.second, true);
+  EXPECT_EQ(vou.vector(), (std::vector<std::string>{"first"}));
+}
+
+TEST(VectorOfUniqueTest, InsertAtSpecificPosition) {
+  containerofunique::vector_of_unique<std::string> vou = {"hello", "world"};
+  auto it = vou.cbegin();
+  auto result = vou.insert(it + 1, "goodbye");
+
+  EXPECT_EQ(*result.first, *(vou.cbegin() + 1));
+  EXPECT_EQ(result.second, true);
+  EXPECT_EQ(vou.vector(),
+            (std::vector<std::string>{"hello", "goodbye", "world"}));
 }
