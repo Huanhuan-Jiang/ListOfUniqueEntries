@@ -130,6 +130,31 @@ public:
     return insert(pos, ilist.begin(), ilist.end());
   }
 
+  template <class... Args>
+  std::pair<const_iterator, bool> emplace(const_iterator pos, Args &&...args) {
+    if (set_.emplace(args...).second) {
+      return std::make_pair(vector_.emplace(pos, std::forward<Args>(args)...),
+                            true);
+    }
+    return std::make_pair(pos, false);
+  }
+
+  template <class... Args>
+  std::optional<std::reference_wrapper<T>> emplace_front(Args &&...args) {
+    if (set_.emplace(args...).second) {
+      return vector_.emplace_front(std::forward<Args>(args)...);
+    }
+    return std::nullopt;
+  }
+
+  template <class... Args>
+  std::optional<std::reference_wrapper<T>> emplace_back(Args &&...args) {
+    if (set_.emplace(args...).second) {
+      return vector_.emplace_back(std::forward<Args>(args)...);
+    }
+    return std::nullopt;
+  }
+
   bool push_back(const T &value) {
     if (set_.insert(value).second) {
       vector_.push_back(value);

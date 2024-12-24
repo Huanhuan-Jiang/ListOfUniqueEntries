@@ -397,3 +397,178 @@ TEST(VectorOfUniqueTest, InsertAtSpecificPosition) {
   EXPECT_EQ(vou.vector(),
             (std::vector<std::string>{"hello", "goodbye", "world"}));
 }
+
+TEST(VectorOfUniqueTest, EmplaceIntoEmpty) {
+  containerofunique::vector_of_unique<std::string> vou;
+  std::vector<std::string> vec;
+
+  auto result = vou.emplace(vou.cbegin(), "hello");
+  vec.emplace(vec.begin(), "hello");
+
+  EXPECT_EQ(vou.vector(), vec);
+  EXPECT_EQ(*result.first, *vou.cbegin());
+  EXPECT_TRUE(result.second);
+}
+
+TEST(VectorOfUniqueTest, EmplaceAtEnd) {
+  containerofunique::vector_of_unique<std::string> vou = {"hello", "world"};
+  std::vector<std::string> vec = {"hello", "world"};
+
+  auto result = vou.emplace(vou.cend(), "goodbye");
+  vec.emplace(vec.end(), "goodbye");
+
+  EXPECT_EQ(vou.vector(), vec);
+  EXPECT_EQ(*result.first, *(vou.cend() - 1));
+  EXPECT_TRUE(result.second);
+}
+
+struct ThrowingType {
+  std::string value;
+  ThrowingType(const std::string &val) : value(val) {
+    if (val == "throw") {
+      throw std::runtime_error("Test exception");
+    }
+  }
+  bool operator==(const ThrowingType &other) const {
+    return value == other.value;
+  }
+};
+
+namespace std {
+template <> struct hash<ThrowingType> {
+  size_t operator()(const ThrowingType &obj) const {
+    (void)obj;
+    return 0;
+  }
+};
+} // namespace std
+
+TEST(VectorOfUniqueTest, EmplaceExceptionSafety) {
+  containerofunique::vector_of_unique<ThrowingType> vou;
+
+  // Normal insertion
+  EXPECT_NO_THROW(vou.emplace(vou.cbegin(), "hello"));
+
+  // Exception-throwing insertion
+  EXPECT_THROW(vou.emplace(vou.cbegin(), "throw"), std::runtime_error);
+
+  // Ensure the container remains consistent
+  EXPECT_EQ(vou.vector().size(), 1);
+  EXPECT_EQ(vou.vector().front().value, "hello");
+}
+
+TEST(VectorOfUniqueTest, EmplaceNonString) {
+  containerofunique::vector_of_unique<int> vou = {1, 2, 3};
+  std::vector<int> vec = {1, 2, 3};
+
+  auto result = vou.emplace(vou.cbegin(), 4);
+  vec.emplace(vec.begin(), 4);
+
+  EXPECT_EQ(vou.vector(), vec);
+  EXPECT_EQ(*result.first, *vou.cbegin());
+  EXPECT_TRUE(result.second);
+
+  // Attempt to emplace a duplicate
+  result = vou.emplace(vou.cbegin(), 4);
+  EXPECT_EQ(vou.vector(), vec); // No change
+  EXPECT_FALSE(result.second);
+}
+
+TEST(VectorOfUniqueTest, EmplaceBack_NewElement) {
+  // Test 1: Emplace a new element "good" to the end of vou
+  // Emplace_back "good" to vou1
+  containerofunique::vector_of_unique<std::string> vou = {"hello", "world"};
+  std::vector<std::string> vec = {"hello", "world"};
+  auto result = vou.emplace_back("good");
+  vec.emplace_back("good");
+  EXPECT_EQ(*(vou.cend() - 1), "good");
+  ASSERT_TRUE(result.has_value());
+  // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+  EXPECT_EQ(result.value().get(), "good");
+  EXPECT_EQ(vou.vector(), vec);
+}
+
+TEST(VectorOfUniqueTest, EmplaceBack_DuplicateElement) {
+  // Test 2: Try emplacing "good" twice (duplicate value)
+  // Expected: No insertion, vector remains unchanged
+  containerofunique::vector_of_unique<std::string> vou = {"hello", "world"};
+  std::vector<std::string> vec = {"hello", "world"};
+  vou.emplace_back("good");
+  vec.emplace_back("good");
+  auto result = vou.emplace_back("good");
+  EXPECT_EQ(*(vou.cend() - 1), "good");
+  EXPECT_EQ(result, std::nullopt);
+  EXPECT_EQ(vou.vector(), vec);
+}
+
+TEST(VectorOfUniqueTest, EmplaceBack_Rvalue) {
+  // Test 3: Emplace an rvalue "good" to the back of vou
+  // Expected: "good" should be inserted at the end of the vector
+  containerofunique::vector_of_unique<std::string> vou = {"hello", "world"};
+  std::string str = "good";
+  auto result = vou.emplace_back(std::move(str));
+  std::vector<std::string> vec = {"hello", "world", "good"};
+  EXPECT_EQ(*(vou.cend() - 1), "good");
+  ASSERT_TRUE(result.has_value());
+  // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+  EXPECT_EQ(result.value().get(), "good");
+  EXPECT_EQ(vou.vector(), vec);
+}
+
+TEST(VectorOfUniqueTest, EmplaceBack_DuplicateRvalue) {
+  // Test 4: Try emplacing the rvalues "good" twice (duplicate value)
+  // Expected: No insertion, vector remains unchanged
+  containerofunique::vector_of_unique<std::string> vou = {"hello", "world"};
+  std::string str1 = "good";
+  std::string str2 = "good";
+  vou.emplace_back(std::move(str1));
+  auto result = vou.emplace_back(std::move(str2));
+  std::vector<std::string> vec = {"hello", "world", "good"};
+  EXPECT_EQ(*(vou.cend() - 1), "good");
+  EXPECT_EQ(result, std::nullopt);
+  EXPECT_EQ(vou.vector(), vec);
+}
+
+TEST(VectorOfUniqueTest, EmplaceBack_EmptyVector) {
+  // Test 5: Emplace a new element "first" to an empty vector
+  // Expected: "first" should be at the back of the vector
+  containerofunique::vector_of_unique<std::string> vou_empty;
+  auto result_empty = vou_empty.emplace_back("first");
+  std::vector<std::string> vec = {"first"};
+  EXPECT_EQ(*vou_empty.cbegin(), "first");
+  ASSERT_TRUE(result_empty.has_value());
+  // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+  EXPECT_EQ(result_empty.value().get(), "first");
+  EXPECT_EQ(vou_empty.vector(), vec);
+}
+
+TEST(VectorOfUniqueTest, EmplaceBack_MultipleElements) {
+  // Test 6: Emplace multiple distinct elements to the back of the vector
+  // Expected: Elements should be inserted at the back in the order of
+  // emplace_back calls
+  containerofunique::vector_of_unique<std::string> vou = {"hello"};
+  vou.emplace_back("world");
+  vou.emplace_back("good");
+  vou.emplace_back("morning");
+
+  std::vector<std::string> vec = {"hello", "world", "good", "morning"};
+
+  EXPECT_EQ(*(vou.cend() - 1), "morning");
+  EXPECT_EQ(*(vou.cend() - 2), "good");
+  EXPECT_EQ(*(vou.cend() - 3), "world");
+  EXPECT_EQ(*(vou.cend() - 4), "hello");
+  EXPECT_EQ(vou.vector(), vec);
+}
+
+TEST(VectorOfUniqueTest, EmplaceBack_NonStringType) {
+  // Test 7: Emplace an integer to the back of an integer vector (non-string
+  // type) Expected: The integer 4 should be at the back of the vector
+  containerofunique::vector_of_unique<int> vou = {1, 2, 3};
+  auto result = vou.emplace_back(4);
+  std::vector<int> vec = {1, 2, 3, 4};
+  EXPECT_EQ(*(vou.cend() - 1), 4);
+  ASSERT_TRUE(result.has_value());
+  // NOLINTNEXTLINE(bugprone-unchecked-optional-access,-warnings-as-errors)
+  EXPECT_EQ(result.value().get(), 4);
+  EXPECT_EQ(vou.vector(), vec);
+}
