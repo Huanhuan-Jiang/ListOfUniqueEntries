@@ -147,6 +147,14 @@ public:
     return std::nullopt;
   }
 
+  void pop_back() {
+    if (!vector_.empty()) {
+      const auto &f = vector_.back();
+      vector_.pop_back();
+      set_.erase(f);
+    }
+  }
+
   bool push_back(const T &value) {
     if (set_.insert(value).second) {
       vector_.push_back(value);
@@ -181,6 +189,16 @@ public:
       any_added = any_added || added;
     }
     return any_added;
+  }
+
+  // Capacity
+  bool empty() const noexcept { return vector_.empty(); }
+
+  size_type size() const noexcept { return vector_.size(); }
+
+  // operators
+  auto operator<=>(const vector_of_unique &other) const {
+    return vector_ <=> other.vector_;
   }
   // Destructor
   ~vector_of_unique() = default;

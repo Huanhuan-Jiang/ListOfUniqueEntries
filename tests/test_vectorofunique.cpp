@@ -572,3 +572,91 @@ TEST(VectorOfUniqueTest, EmplaceBack_NonStringType) {
   EXPECT_EQ(result.value().get(), 4);
   EXPECT_EQ(vou.vector(), vec);
 }
+
+TEST(VectorOfUniqueTest, PopBack_EmptyVector) {
+  containerofunique::vector_of_unique<std::string> vou;
+  EXPECT_NO_THROW(vou.pop_back());
+  EXPECT_TRUE(vou.vector().empty());
+  EXPECT_TRUE(vou.set().empty());
+}
+
+TEST(VectorOfUniqueTest, PopBack_SingleElement) {
+  containerofunique::vector_of_unique<std::string> vou = {"hello"};
+  vou.pop_back();
+  EXPECT_TRUE(vou.vector().empty());
+  EXPECT_TRUE(vou.set().empty());
+}
+
+TEST(VectorOfUniqueTest, PopBack_MultipleSequential) {
+  containerofunique::vector_of_unique<std::string> vou = {"hello", "world",
+                                                          "goodbye"};
+  vou.pop_back();
+  EXPECT_EQ(vou.vector(), (std::vector<std::string>{"hello", "world"}));
+  EXPECT_THAT(vou.set(), ::testing::UnorderedElementsAre("hello", "world"));
+
+  vou.pop_back();
+  EXPECT_EQ(vou.vector(), (std::vector<std::string>{"hello"}));
+  EXPECT_THAT(vou.set(), ::testing::UnorderedElementsAre("hello"));
+
+  vou.pop_back();
+  EXPECT_TRUE(vou.vector().empty());
+  EXPECT_TRUE(vou.set().empty());
+}
+
+TEST(VectorOfUniqueTest, PushBack_NewElement) {
+  containerofunique::vector_of_unique<std::string> vou = {"hello", "world"};
+  std::vector<std::string> expected = {"hello", "world", "good"};
+
+  // Test pushing a new element to the back
+  bool result = vou.push_back("good");
+  EXPECT_TRUE(result); // Should return true
+  EXPECT_EQ(vou.vector(), expected);
+  EXPECT_THAT(vou.set(), ::testing::UnorderedElementsAreArray(expected));
+}
+
+TEST(VectorOfUniqueTest, PushBack_DuplicateElement) {
+  containerofunique::vector_of_unique<std::string> vou = {"hello", "world"};
+  std::vector<std::string> expected = {"hello", "world"};
+
+  // Test pushing a duplicate element
+  bool result = vou.push_back("hello");
+  EXPECT_FALSE(result); // Should return false
+  EXPECT_EQ(vou.size(), 2);
+  EXPECT_EQ(vou.vector(), expected);
+  EXPECT_THAT(vou.set(), ::testing::UnorderedElementsAreArray(expected));
+}
+
+TEST(VectorOfUniqueTest, PushBack_Rvalue) {
+  containerofunique::vector_of_unique<std::string> vou = {"hello", "world"};
+  std::vector<std::string> expected = {"hello", "world", "good"};
+
+  // Test pushing an rvalue to the back
+  std::string str = "good";
+  bool result = vou.push_back(std::move(str));
+  EXPECT_TRUE(result); // Should return true
+  EXPECT_EQ(vou.vector(), expected);
+  EXPECT_THAT(vou.set(), ::testing::UnorderedElementsAreArray(expected));
+}
+
+TEST(VectorOfUniqueTest, PushBack_EmptyRvalue) {
+  containerofunique::vector_of_unique<std::string> vou = {"hello", "world"};
+  std::vector<std::string> expected = {"hello", "world", ""};
+
+  // Test pushing an empty string as an rvalue
+  std::string str = "";
+  bool result = vou.push_back(std::move(str));
+  EXPECT_TRUE(result); // Should return true
+  EXPECT_EQ(vou.vector(), expected);
+  EXPECT_THAT(vou.set(), ::testing::UnorderedElementsAreArray(expected));
+}
+
+TEST(VectorOfUniqueTest, PushBack_EmptyContainer) {
+  containerofunique::vector_of_unique<std::string> vou;
+  std::vector<std::string> expected = {"hello"};
+
+  // Test pushing to an initially empty container
+  bool result = vou.push_back("hello");
+  EXPECT_TRUE(result); // Should return true
+  EXPECT_EQ(vou.vector(), expected);
+  EXPECT_THAT(vou.set(), ::testing::UnorderedElementsAreArray(expected));
+}
