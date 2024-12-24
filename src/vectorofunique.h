@@ -191,6 +191,11 @@ public:
     return any_added;
   }
 
+  void swap(vector_of_unique &other) noexcept {
+    vector_.swap(other.vector_);
+    set_.swap(other.set_);
+  }
+
   // Capacity
   bool empty() const noexcept { return vector_.empty(); }
 

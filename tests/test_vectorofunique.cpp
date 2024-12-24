@@ -660,3 +660,29 @@ TEST(VectorOfUniqueTest, PushBack_EmptyContainer) {
   EXPECT_EQ(vou.vector(), expected);
   EXPECT_THAT(vou.set(), ::testing::UnorderedElementsAreArray(expected));
 }
+
+TEST(DequeOfUniqueTest, MemberFunctionSwap) {
+  containerofunique::vector_of_unique<std::string> vou1 = {"hello", "world"};
+  containerofunique::vector_of_unique<std::string> vou2 = {"good", "morning"};
+  std::vector<std::string> vec1 = {"hello", "world"};
+  std::vector<std::string> vec2 = {"good", "morning"};
+
+  vou1.swap(vou2);
+  EXPECT_EQ(vou1.vector(), vec2);
+  EXPECT_THAT(vou1.set(), ::testing::UnorderedElementsAreArray(vec2));
+  EXPECT_EQ(vou2.vector(), vec1);
+  EXPECT_THAT(vou2.set(), ::testing::UnorderedElementsAreArray(vec1));
+}
+
+TEST(DequeOfUniqueTest, StdSwap) {
+  containerofunique::deque_of_unique<std::string> dou1 = {"hello", "world"};
+  containerofunique::deque_of_unique<std::string> dou2 = {"good", "morning"};
+  std::deque<std::string> dq1 = {"hello", "world"};
+  std::deque<std::string> dq2 = {"good", "morning"};
+
+  std::swap(dou1, dou2);
+  EXPECT_EQ(dou1.deque(), dq2);
+  EXPECT_THAT(dou1.set(), ::testing::UnorderedElementsAreArray(dq2));
+  EXPECT_EQ(dou2.deque(), dq1);
+  EXPECT_THAT(dou2.set(), ::testing::UnorderedElementsAreArray(dq1));
+}
