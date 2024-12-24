@@ -675,14 +675,74 @@ TEST(VectorOfUniqueTest, MemberFunctionSwap) {
 }
 
 TEST(VectorOfUniqueTest, StdSwap) {
-  containerofunique::vector_of_unique<std::string> dou1 = {"hello", "world"};
-  containerofunique::vector_of_unique<std::string> dou2 = {"good", "morning"};
+  containerofunique::vector_of_unique<std::string> vou1 = {"hello", "world"};
+  containerofunique::vector_of_unique<std::string> vou2 = {"good", "morning"};
   std::vector<std::string> vec1 = {"hello", "world"};
   std::vector<std::string> vec2 = {"good", "morning"};
 
-  std::swap(dou1, dou2);
-  EXPECT_EQ(dou1.vector(), vec2);
-  EXPECT_THAT(dou1.set(), ::testing::UnorderedElementsAreArray(vec2));
-  EXPECT_EQ(dou2.vector(), vec1);
-  EXPECT_THAT(dou2.set(), ::testing::UnorderedElementsAreArray(vec1));
+  std::swap(vou1, vou2);
+  EXPECT_EQ(vou1.vector(), vec2);
+  EXPECT_THAT(vou1.set(), ::testing::UnorderedElementsAreArray(vec2));
+  EXPECT_EQ(vou2.vector(), vec1);
+  EXPECT_THAT(vou2.set(), ::testing::UnorderedElementsAreArray(vec1));
+}
+
+TEST(VectorOfUniqueTest, Empty) {
+  containerofunique::vector_of_unique<std::string> vou1;
+  EXPECT_TRUE(vou1.empty());
+  containerofunique::vector_of_unique<std::string> vou2 = {"good"};
+  EXPECT_FALSE(vou2.empty());
+  containerofunique::vector_of_unique<std::string> vou3 = {"good", "morning",
+                                                           "hello", "world"};
+  EXPECT_FALSE(vou3.empty());
+}
+
+TEST(VectorOfUniqueTest, Size) {
+  // Test 1: Vector with a single element
+  containerofunique::vector_of_unique<std::string> vou1 = {"good"};
+  EXPECT_EQ(vou1.size(), 1);
+
+  // Test 2: Vector with multiple unique elements
+  containerofunique::vector_of_unique<std::string> vou2 = {"good", "morning",
+                                                           "hello", "world"};
+  EXPECT_EQ(vou2.size(), 4);
+
+  // Adding a new unique element increases the size
+  vou2.push_back("new");
+  EXPECT_EQ(vou2.size(), 5);
+
+  // Attempting to add a duplicate element does not change the size
+  vou2.push_back("morning"); // "morning" is already in the vector
+  EXPECT_EQ(vou2.size(), 5);
+
+  // Test 3: Empty vector
+  containerofunique::vector_of_unique<std::string> vou3;
+  EXPECT_EQ(vou3.size(), 0); // Corrected to check vou3
+}
+
+TEST(VectorOfUniqueTest, Operator) {
+  // Test 1: Identical vectors
+  containerofunique::vector_of_unique<std::string> vou1_1 = {"good"};
+  containerofunique::vector_of_unique<std::string> vou1_2 = {"good"};
+  EXPECT_EQ(vou1_1 <=> vou1_2, std::strong_ordering::equal);
+
+  // Test 2: Subset case
+  containerofunique::vector_of_unique<std::string> vou2 = {"good", "morning"};
+  EXPECT_EQ(vou1_1 <=> vou2, std::weak_ordering::less);
+  EXPECT_EQ(vou2 <=> vou1_1, std::weak_ordering::greater);
+
+  // Test 3: Different order case (for robustness, even if not expected in
+  // unique vectors)
+  containerofunique::vector_of_unique<std::string> vou3 = {"morning", "good"};
+  EXPECT_EQ(vou2 <=> vou3, std::weak_ordering::less);
+
+  // Test 4: Lexicographical comparison
+  containerofunique::vector_of_unique<std::string> vou4 = {"apple", "banana"};
+  EXPECT_EQ(vou4 <=> vou1_1, std::weak_ordering::less);
+
+  // Test 5: Empty vectors
+  containerofunique::vector_of_unique<std::string> vou_empty1;
+  containerofunique::vector_of_unique<std::string> vou_empty2;
+  EXPECT_EQ(vou_empty1 <=> vou_empty2, std::strong_ordering::equal);
+  EXPECT_EQ(vou_empty1 <=> vou1_1, std::weak_ordering::less);
 }
