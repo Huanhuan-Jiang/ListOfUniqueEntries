@@ -23,12 +23,17 @@ TEST(VectorOfUniqueTest, DefaultConstructor) {
 }
 
 TEST(VectorOfUniqueTest, ConstructorInitializesFromIterators) {
-  std::vector<int> vec = {3, 1, 2, 3, 4, 5};
-  containerofunique::vector_of_unique<int> vou(vec.begin(), vec.end());
+  std::vector<int> vec1 = {3, 1, 2, 3, 4, 5};
+  std::vector<int> vec2 = {3, 1, 2, 4, 5};
+  containerofunique::vector_of_unique<int> vou1(vec1.begin(), vec1.end());
+  containerofunique::vector_of_unique<int> vou2(vec2.begin(), vec2.end());
 
-  EXPECT_EQ(vou.vector(), vec);
-  EXPECT_THAT(std::vector<int>(vou.set().begin(), vou.set().end()),
-              ::testing::UnorderedElementsAreArray(vec));
+  EXPECT_EQ(vou1.vector(), vec2);
+  EXPECT_THAT(std::vector<int>(vou1.set().begin(), vou1.set().end()),
+              ::testing::UnorderedElementsAreArray(vec2));
+  EXPECT_EQ(vou2.vector(), vec2);
+  EXPECT_THAT(std::vector<int>(vou2.set().begin(), vou2.set().end()),
+              ::testing::UnorderedElementsAreArray(vec2));
 }
 
 TEST(VectorOfUniqueTest, ConstructorWithInitializerListChecksVectorAndSet) {
@@ -160,9 +165,9 @@ TEST(VectorOfUniqueTest, ElementAccess_ConstVector) {
 
 // Test for normal iteration using cbegin() and cend()
 TEST(VectorOfUniqueTest, CbeginCend_Iteration) {
-  containerofunique::vector_of_unique<int> dou = {1, 2, 3, 4};
+  containerofunique::vector_of_unique<int> vou = {1, 2, 3, 4};
 
-  auto it = dou.cbegin();
+  auto it = vou.cbegin();
   EXPECT_EQ(*it, 1);
   ++it;
   EXPECT_EQ(*it, 2);
@@ -171,14 +176,14 @@ TEST(VectorOfUniqueTest, CbeginCend_Iteration) {
   ++it;
   EXPECT_EQ(*it, 4);
   ++it;
-  EXPECT_EQ(it, dou.cend()); // Ensure iterator reaches cend()
+  EXPECT_EQ(it, vou.cend()); // Ensure iterator reaches cend()
 }
 
 // Test for normal iteration using crbegin() and crend()
 TEST(VectorOfUniqueTest, CrbeginCrend_Iteration) {
-  containerofunique::vector_of_unique<int> dou = {1, 2, 3, 4};
+  containerofunique::vector_of_unique<int> vou = {1, 2, 3, 4};
 
-  auto rit = dou.crbegin();
+  auto rit = vou.crbegin();
   EXPECT_EQ(*rit, 4);
   ++rit;
   EXPECT_EQ(*rit, 3);
@@ -187,50 +192,90 @@ TEST(VectorOfUniqueTest, CrbeginCrend_Iteration) {
   ++rit;
   EXPECT_EQ(*rit, 1);
   ++rit;
-  EXPECT_EQ(rit, dou.crend()); // Ensure reverse iterator reaches crend()
+  EXPECT_EQ(rit, vou.crend()); // Ensure reverse iterator reaches crend()
 }
 
 // Test for empty container's iterators
 TEST(VectorOfUniqueTest, EmptyContainer_Iterators) {
-  containerofunique::vector_of_unique<int> empty_dou;
+  containerofunique::vector_of_unique<int> empty_vou;
 
   // For an empty vector, cbegin() should be equal to cend()
-  EXPECT_EQ(empty_dou.cbegin(), empty_dou.cend());
+  EXPECT_EQ(empty_vou.cbegin(), empty_vou.cend());
   // For an empty vector, crbegin() should be equal to crend()
-  EXPECT_EQ(empty_dou.crbegin(), empty_dou.crend());
+  EXPECT_EQ(empty_vou.crbegin(), empty_vou.crend());
 }
 
 // Test for const-correctness of iterators
 TEST(VectorOfUniqueTest, ConstCorrectness_Iterators) {
-  containerofunique::vector_of_unique<int> dou = {1, 2, 3, 4};
+  containerofunique::vector_of_unique<int> vou = {1, 2, 3, 4};
 
-  EXPECT_TRUE((std::same_as<decltype(*dou.cbegin()), const int &>));
-  EXPECT_TRUE((std::same_as<decltype(*dou.cend()), const int &>));
-  EXPECT_TRUE((std::same_as<decltype(*dou.crbegin()), const int &>));
-  EXPECT_TRUE((std::same_as<decltype(*dou.crend()), const int &>));
+  EXPECT_TRUE((std::same_as<decltype(*vou.cbegin()), const int &>));
+  EXPECT_TRUE((std::same_as<decltype(*vou.cend()), const int &>));
+  EXPECT_TRUE((std::same_as<decltype(*vou.crbegin()), const int &>));
+  EXPECT_TRUE((std::same_as<decltype(*vou.crend()), const int &>));
 }
 
 // Test that iterators do not modify elements (compile-time check)
 TEST(VectorOfUniqueTest, Iterator_ModificationNotAllowed) {
-  containerofunique::vector_of_unique<int> dou = {1, 2, 3, 4};
-  auto const_it = dou.cbegin();
+  containerofunique::vector_of_unique<int> vou = {1, 2, 3, 4};
+  auto const_it = vou.cbegin();
   ASSERT_EQ(*const_it, 1);
   ASSERT_TRUE(std::is_const_v<std::remove_reference_t<decltype(*const_it)>>);
 }
 
-TEST(VectorOfUniqueTest, ClearAndErase) {
+TEST(VectorOfUniqueTest, Clear) {
+  containerofunique::vector_of_unique<int> vou = {1, 2, 3, 4, 5};
+  vou.clear();
+
+  EXPECT_EQ(vou.vector().size(), 0); // Vector should be empty
+  EXPECT_THAT(vou.set(),
+              ::testing::UnorderedElementsAre()); // Set should be empty
+}
+
+TEST(VectorOfUniqueTest, Erase_SingleElement) {
+  containerofunique::vector_of_unique<int> vou = {1, 2, 3, 4, 5};
+  std::vector<int> expected_vector = {2, 3, 4, 5};
+  std::unordered_set<int> expected_set = {2, 3, 4, 5};
+
+  vou.erase(vou.cbegin());
+  EXPECT_EQ(vou.vector(), expected_vector);
+  EXPECT_THAT(vou.set(), ::testing::UnorderedElementsAreArray(expected_set));
+}
+
+TEST(VectorOfUniqueTest, Erase_FromEmptyContainer) {
+  containerofunique::vector_of_unique<int> vou;
+  EXPECT_NO_THROW(vou.erase(vou.cbegin()));
+  EXPECT_EQ(vou.vector().size(), 0);
+}
+
+TEST(VectorOfUniqueTest, EraseEmptyRange) {
   containerofunique::vector_of_unique<int> vou1 = {1, 2, 3, 4, 5, 6};
-  std::vector<int> dq1 = {2, 3, 4, 5, 6};
-  std::unordered_set<int> set1 = {2, 3, 4, 5, 6};
+  std::vector<int> dq2 = {1, 2, 3, 4, 5, 6};
+  std::unordered_set<int> set2 = {1, 2, 3, 4, 5, 6};
 
-  vou1.erase(vou1.cbegin());
-  EXPECT_EQ(vou1.vector(), dq1);
-  EXPECT_THAT(vou1.set(), ::testing::UnorderedElementsAreArray(set1));
+  auto result = vou1.erase(vou1.cbegin(), vou1.cbegin());
+  EXPECT_EQ(result, vou1.cbegin());
+  EXPECT_EQ(vou1.vector(), dq2);
+  EXPECT_THAT(vou1.set(), ::testing::UnorderedElementsAreArray(set2));
+}
 
+TEST(VectorOfUniqueTest, EraseRangeOfElements) {
+  containerofunique::vector_of_unique<int> vou1 = {1, 2, 3, 4, 5, 6};
   std::vector<int> dq2 = {4, 5, 6};
   std::unordered_set<int> set2 = {4, 5, 6};
 
-  vou1.erase(vou1.cbegin(), vou1.cbegin() + 2);
+  vou1.erase(vou1.cbegin(), vou1.cbegin() + 3);
+  EXPECT_EQ(vou1.vector(), dq2);
+  EXPECT_THAT(vou1.set(), ::testing::UnorderedElementsAreArray(set2));
+}
+
+TEST(VectorOfUniqueTest, EraseAllElements) {
+  containerofunique::vector_of_unique<int> vou1 = {1, 2, 3, 4, 5, 6};
+  std::vector<int> dq2 = {};
+  std::unordered_set<int> set2 = {};
+
+  auto result = vou1.erase(vou1.cbegin(), vou1.cend());
+  EXPECT_EQ(result, vou1.cend());
   EXPECT_EQ(vou1.vector(), dq2);
   EXPECT_THAT(vou1.set(), ::testing::UnorderedElementsAreArray(set2));
 }

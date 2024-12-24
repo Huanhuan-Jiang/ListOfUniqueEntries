@@ -1,17 +1,17 @@
 #pragma once
 
-#include <functional>  // For std::hash
+#include <functional> // For std::hash
 #include <initializer_list>
-#include <optional>  // For std::nullopt
+#include <optional> // For std::nullopt
 #include <unordered_set>
-#include <utility>  // For std::swap
+#include <utility> // For std::swap
 #include <vector>
 
 namespace containerofunique {
 
 template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>>
 class vector_of_unique {
- public:
+public:
   // *Member types
   using value_type = T;
   using key_type = T;
@@ -29,8 +29,7 @@ class vector_of_unique {
   // Constructor
   vector_of_unique() noexcept = default;
 
-  template <class input_it>
-  vector_of_unique(input_it first, input_it last) {
+  template <class input_it> vector_of_unique(input_it first, input_it last) {
     _push_back(first, last);
   }
 
@@ -73,14 +72,22 @@ class vector_of_unique {
   }
 
   const_iterator erase(const_iterator pos) {
+    if (vector_.empty()) {
+      return vector_.cend();
+    }
     set_.erase(*pos);
     return vector_.erase(pos);
   }
 
   const_iterator erase(const_iterator first, const_iterator last) {
+    if (first == last) {
+      return last;
+    }
+
     for (auto it = first; it != last; ++it) {
       set_.erase(*it);
     }
+
     return vector_.erase(first, last);
   }
 
@@ -101,8 +108,7 @@ class vector_of_unique {
     return false;
   }
 
-  template <class input_it>
-  void _push_back(input_it first, input_it last) {
+  template <class input_it> void _push_back(input_it first, input_it last) {
     while (first != last) {
       push_back(*first++);
     }
@@ -127,8 +133,8 @@ class vector_of_unique {
   const VectorType &vector() const { return vector_; }
   const UnorderedSetType &set() const { return set_; }
 
- private:
+private:
   VectorType vector_;
   UnorderedSetType set_;
-};  // class vector_of_unique
-};  // namespace containerofunique
+}; // class vector_of_unique
+}; // namespace containerofunique
