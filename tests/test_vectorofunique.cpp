@@ -40,7 +40,7 @@ TEST(VectorOfUniqueTest, ConstructorWithInitializerListChecksVectorAndSet) {
   containerofunique::vector_of_unique<int> vou1 = {1};
   containerofunique::vector_of_unique<int> vou2 = {1, 2};
   containerofunique::vector_of_unique<int> vou3 = {1, 2, 3,
-                                                   3}; // duplicate elements
+                                                   3};  // duplicate elements
 
   std::vector<int> vec1 = {1};
   std::vector<int> vec2 = {1, 2};
@@ -79,7 +79,7 @@ TEST(VectorOfUniqueTest, CopyConstructor_Independence) {
   containerofunique::vector_of_unique<int> vou1 = {1, 2, 3};
   containerofunique::vector_of_unique<int> vou2(vou1);
 
-  vou1.push_back(4); // Modify the original
+  vou1.push_back(4);  // Modify the original
   EXPECT_EQ(vou1.vector(), std::vector<int>({1, 2, 3, 4}));
   EXPECT_EQ(vou2.vector(), std::vector<int>({1, 2, 3}));
 }
@@ -114,8 +114,8 @@ TEST(VectorOfUniqueTest, CopyAssignmentOperator) {
   EXPECT_THAT(std::vector<int>(vou2.set().begin(), vou2.set().end()),
               ::testing::UnorderedElementsAreArray(vec));
   vou1.push_back(
-      5); // This is used to suppress warning of
-          // [performance-unnecessary-copy-initialization,-warnings-as-errors]
+      5);  // This is used to suppress warning of
+           // [performance-unnecessary-copy-initialization,-warnings-as-errors]
 }
 
 TEST(VectorOfUniqueTest, MoveAssignmentOperator) {
@@ -176,7 +176,7 @@ TEST(VectorOfUniqueTest, CbeginCend_Iteration) {
   ++it;
   EXPECT_EQ(*it, 4);
   ++it;
-  EXPECT_EQ(it, vou.cend()); // Ensure iterator reaches cend()
+  EXPECT_EQ(it, vou.cend());  // Ensure iterator reaches cend()
 }
 
 // Test for normal iteration using crbegin() and crend()
@@ -192,7 +192,7 @@ TEST(VectorOfUniqueTest, CrbeginCrend_Iteration) {
   ++rit;
   EXPECT_EQ(*rit, 1);
   ++rit;
-  EXPECT_EQ(rit, vou.crend()); // Ensure reverse iterator reaches crend()
+  EXPECT_EQ(rit, vou.crend());  // Ensure reverse iterator reaches crend()
 }
 
 // Test for empty container's iterators
@@ -227,9 +227,9 @@ TEST(VectorOfUniqueTest, Clear) {
   containerofunique::vector_of_unique<int> vou = {1, 2, 3, 4, 5};
   vou.clear();
 
-  EXPECT_EQ(vou.vector().size(), 0); // Vector should be empty
+  EXPECT_EQ(vou.vector().size(), 0);  // Vector should be empty
   EXPECT_THAT(vou.set(),
-              ::testing::UnorderedElementsAre()); // Set should be empty
+              ::testing::UnorderedElementsAre());  // Set should be empty
 }
 
 TEST(VectorOfUniqueTest, Erase_SingleElement) {
@@ -435,13 +435,14 @@ struct ThrowingType {
 };
 
 namespace std {
-template <> struct hash<ThrowingType> {
+template <>
+struct hash<ThrowingType> {
   size_t operator()(const ThrowingType &obj) const {
     (void)obj;
     return 0;
   }
 };
-} // namespace std
+}  // namespace std
 
 TEST(VectorOfUniqueTest, EmplaceExceptionSafety) {
   containerofunique::vector_of_unique<ThrowingType> vou;
@@ -470,7 +471,7 @@ TEST(VectorOfUniqueTest, EmplaceNonString) {
 
   // Attempt to emplace a duplicate
   result = vou.emplace(vou.cbegin(), 4);
-  EXPECT_EQ(vou.vector(), vec); // No change
+  EXPECT_EQ(vou.vector(), vec);  // No change
   EXPECT_FALSE(result.second);
 }
 
@@ -609,7 +610,7 @@ TEST(VectorOfUniqueTest, PushBack_NewElement) {
 
   // Test pushing a new element to the back
   bool result = vou.push_back("good");
-  EXPECT_TRUE(result); // Should return true
+  EXPECT_TRUE(result);  // Should return true
   EXPECT_EQ(vou.vector(), expected);
   EXPECT_THAT(vou.set(), ::testing::UnorderedElementsAreArray(expected));
 }
@@ -620,7 +621,7 @@ TEST(VectorOfUniqueTest, PushBack_DuplicateElement) {
 
   // Test pushing a duplicate element
   bool result = vou.push_back("hello");
-  EXPECT_FALSE(result); // Should return false
+  EXPECT_FALSE(result);  // Should return false
   EXPECT_EQ(vou.size(), 2);
   EXPECT_EQ(vou.vector(), expected);
   EXPECT_THAT(vou.set(), ::testing::UnorderedElementsAreArray(expected));
@@ -633,7 +634,7 @@ TEST(VectorOfUniqueTest, PushBack_Rvalue) {
   // Test pushing an rvalue to the back
   std::string str = "good";
   bool result = vou.push_back(std::move(str));
-  EXPECT_TRUE(result); // Should return true
+  EXPECT_TRUE(result);  // Should return true
   EXPECT_EQ(vou.vector(), expected);
   EXPECT_THAT(vou.set(), ::testing::UnorderedElementsAreArray(expected));
 }
@@ -645,7 +646,7 @@ TEST(VectorOfUniqueTest, PushBack_EmptyRvalue) {
   // Test pushing an empty string as an rvalue
   std::string str = "";
   bool result = vou.push_back(std::move(str));
-  EXPECT_TRUE(result); // Should return true
+  EXPECT_TRUE(result);  // Should return true
   EXPECT_EQ(vou.vector(), expected);
   EXPECT_THAT(vou.set(), ::testing::UnorderedElementsAreArray(expected));
 }
@@ -656,7 +657,7 @@ TEST(VectorOfUniqueTest, PushBack_EmptyContainer) {
 
   // Test pushing to an initially empty container
   bool result = vou.push_back("hello");
-  EXPECT_TRUE(result); // Should return true
+  EXPECT_TRUE(result);  // Should return true
   EXPECT_EQ(vou.vector(), expected);
   EXPECT_THAT(vou.set(), ::testing::UnorderedElementsAreArray(expected));
 }
@@ -712,12 +713,12 @@ TEST(VectorOfUniqueTest, Size) {
   EXPECT_EQ(vou2.size(), 5);
 
   // Attempting to add a duplicate element does not change the size
-  vou2.push_back("morning"); // "morning" is already in the vector
+  vou2.push_back("morning");  // "morning" is already in the vector
   EXPECT_EQ(vou2.size(), 5);
 
   // Test 3: Empty vector
   containerofunique::vector_of_unique<std::string> vou3;
-  EXPECT_EQ(vou3.size(), 0); // Corrected to check vou3
+  EXPECT_EQ(vou3.size(), 0);  // Corrected to check vou3
 }
 
 TEST(VectorOfUniqueTest, Operator) {
