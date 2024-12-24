@@ -140,14 +140,6 @@ public:
   }
 
   template <class... Args>
-  std::optional<std::reference_wrapper<T>> emplace_front(Args &&...args) {
-    if (set_.emplace(args...).second) {
-      return vector_.emplace_front(std::forward<Args>(args)...);
-    }
-    return std::nullopt;
-  }
-
-  template <class... Args>
   std::optional<std::reference_wrapper<T>> emplace_back(Args &&...args) {
     if (set_.emplace(args...).second) {
       return vector_.emplace_back(std::forward<Args>(args)...);
