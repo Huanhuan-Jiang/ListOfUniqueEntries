@@ -998,17 +998,17 @@ TEST(DequeOfUniqueTest, ComparisonOperatorsWithStringCXX20) {
   containerofunique::deque_of_unique<std::string> dou3;
 
   // Test spaceship operator (<=>) for C++20 or later
-  EXPECT_TRUE(dou1 <=> dou2 == std::strong_ordering::equal);
+  EXPECT_TRUE((dou1 <=> dou2) == std::strong_ordering::equal);
   dou1.push_back("Hello");
   dou2.push_back("Hello");
-  EXPECT_TRUE(dou1 <=> dou2 == std::strong_ordering::equal);
+  EXPECT_TRUE((dou1 <=> dou2) == std::strong_ordering::equal);
   dou2.push_back("world");
-  EXPECT_TRUE(dou1 <=> dou2 != std::strong_ordering::equal);
-  EXPECT_TRUE(dou1 <=> dou2 == std::strong_ordering::less);
+  EXPECT_TRUE((dou1 <=> dou2) != std::strong_ordering::equal);
+  EXPECT_TRUE((dou1 <=> dou2) == std::strong_ordering::less);
 
   dou3.push_back("Apple");
-  EXPECT_TRUE(dou3 <=> dou1 == std::strong_ordering::less);
+  EXPECT_TRUE((dou3 <=> dou1) == std::strong_ordering::less);
   dou3.push_front("morning");
-  EXPECT_TRUE(dou3 <=> dou1 == std::strong_ordering::greater);
+  EXPECT_TRUE((dou3 <=> dou1) == std::strong_ordering::greater);
 }
 #endif
