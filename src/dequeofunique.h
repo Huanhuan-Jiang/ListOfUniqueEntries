@@ -1,11 +1,11 @@
 #pragma once
 
 #include <deque>
-#include <functional>  // For std::hash
+#include <functional> // For std::hash
 #include <initializer_list>
-#include <optional>  // For std::nullopt
+#include <optional> // For std::nullopt
 #include <unordered_set>
-#include <utility>  // For std::swap
+#include <utility> // For std::swap
 
 #if __cplusplus >= 201703L
 #define NOEXCEPT_CXX17 noexcept
@@ -17,7 +17,7 @@ namespace containerofunique {
 
 template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>>
 class deque_of_unique {
- public:
+public:
   // *Member types
   using value_type = T;
   using key_type = T;
@@ -35,8 +35,7 @@ class deque_of_unique {
   // Constructor
   deque_of_unique() = default;
 
-  template <class input_it>
-  deque_of_unique(input_it first, input_it last) {
+  template <class input_it> deque_of_unique(input_it first, input_it last) {
     _push_back(first, last);
   }
 
@@ -45,7 +44,7 @@ class deque_of_unique {
 
   deque_of_unique(const deque_of_unique &other) { _push_back(other); }
 
-  deque_of_unique(deque_of_unique &&other) noexcept {
+  deque_of_unique(deque_of_unique &&other) {
     std::swap(deque_, other.deque_);
     std::swap(set_, other.set_);
   }
@@ -212,8 +211,7 @@ class deque_of_unique {
     return false;
   }
 
-  template <class input_it>
-  void _push_back(input_it first, input_it last) {
+  template <class input_it> void _push_back(input_it first, input_it last) {
     while (first != last) {
       push_back(*first++);
     }
@@ -249,10 +247,10 @@ class deque_of_unique {
   const DequeType &deque() const { return deque_; }
   const UnorderedSetType &set() const { return set_; }
 
- private:
+private:
   DequeType deque_;
   UnorderedSetType set_;
-};  // class deque_of_unique
+}; // class deque_of_unique
 
 // Non-member operator overloads
 // Operators before C++20
@@ -266,7 +264,7 @@ bool operator==(const deque_of_unique<T, Hash, KeyEqual> &lhs,
 template <class T, class Hash, class KeyEqual>
 bool operator!=(const deque_of_unique<T, Hash, KeyEqual> &lhs,
                 const deque_of_unique<T, Hash, KeyEqual> &rhs) {
-  return !(lhs == rhs);  // Reuse the equality operator
+  return !(lhs == rhs); // Reuse the equality operator
 }
 
 template <class T, class Hash, class KeyEqual>
@@ -300,10 +298,10 @@ bool operator>=(const deque_of_unique<T, Hash, KeyEqual> &lhs,
 #else
 // Operators after C++20
 template <class T, class Hash, class KeyEqual>
-std::strong_ordering operator<=>(
-    const deque_of_unique<T, Hash, KeyEqual> &lhs,
-    const deque_of_unique<T, Hash, KeyEqual> &rhs) {
+std::strong_ordering
+operator<=>(const deque_of_unique<T, Hash, KeyEqual> &lhs,
+            const deque_of_unique<T, Hash, KeyEqual> &rhs) {
   return lhs.deque() <=> rhs.deque();
 }
 #endif
-};  // namespace containerofunique
+}; // namespace containerofunique
