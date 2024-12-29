@@ -293,8 +293,9 @@ TEST(DequeOfUniqueTest, Iterator_ModificationNotAllowed) {
 
 TEST(DequeOfUniqueTest, Clear) {
   containerofunique::deque_of_unique<int> dou = {1, 2, 3, 4, 5};
-  dou.clear();
+  static_assert(noexcept(dou.clear()), "clear() should be noexcept.");
 
+  EXPECT_NO_THROW(dou.clear());
   EXPECT_EQ(dou.deque().size(), 0);
   EXPECT_THAT(dou.set(), ::testing::UnorderedElementsAre());
 }
@@ -964,12 +965,20 @@ TEST(DequeOfUniqueTest, StdSwap) {
 }
 
 TEST(DequeOfUniqueTest, Empty) {
+  // Test for empty container
   containerofunique::deque_of_unique<std::string> dou1;
+  static_assert(noexcept(dou1.empty()), "empty() should be noexcept.");
+  EXPECT_NO_THROW(dou1.empty());
   EXPECT_TRUE(dou1.empty());
+
+  // Test for non-empty containers
   containerofunique::deque_of_unique<std::string> dou2 = {"good"};
+  EXPECT_NO_THROW(dou2.empty());
   EXPECT_FALSE(dou2.empty());
+
   containerofunique::deque_of_unique<std::string> dou3 = {"good", "morning",
                                                           "hello", "world"};
+  EXPECT_NO_THROW(dou3.empty());
   EXPECT_FALSE(dou3.empty());
 }
 
