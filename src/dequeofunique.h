@@ -9,8 +9,8 @@
 
 #if __cplusplus >= 201703L
 #define NOEXCEPT_CXX17 noexcept
-#elif __cplusplus >= 201103L
-#define NOEXCEPT_CXX11 noexcept
+#else
+#define NOEXCEPT_CXX17
 #endif
 
 namespace containerofunique {
