@@ -1,17 +1,23 @@
 #pragma once
 
 #include <deque>
-#include <functional>  // For std::hash
+#include <functional> // For std::hash
 #include <initializer_list>
-#include <optional>  // For std::nullopt
+#include <optional> // For std::nullopt
 #include <unordered_set>
-#include <utility>  // For std::swap
+#include <utility> // For std::swap
+
+#if __cplusplus >= 201703L
+#define NOEXCEPT_CXX17 noexcept
+#elif __cplusplus >= 201103L
+#define NOEXCEPT_CXX11 noexcept
+#endif
 
 namespace containerofunique {
 
 template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>>
 class deque_of_unique {
- public:
+public:
   // *Member types
   using value_type = T;
   using key_type = T;
@@ -29,8 +35,7 @@ class deque_of_unique {
   // Constructor
   deque_of_unique() = default;
 
-  template <class input_it>
-  deque_of_unique(input_it first, input_it last) {
+  template <class input_it> deque_of_unique(input_it first, input_it last) {
     _push_back(first, last);
   }
 
@@ -45,7 +50,7 @@ class deque_of_unique {
   }
 
   deque_of_unique &operator=(const deque_of_unique &other) = default;
-  deque_of_unique &operator=(deque_of_unique &&other) noexcept = default;
+  deque_of_unique &operator=(deque_of_unique &&other) NOEXCEPT_CXX17 = default;
   deque_of_unique &operator=(std::initializer_list<T> ilist) {
     deque_of_unique temp(ilist);
     std::swap(deque_, temp.deque_);
@@ -206,8 +211,7 @@ class deque_of_unique {
     return false;
   }
 
-  template <class input_it>
-  void _push_back(input_it first, input_it last) {
+  template <class input_it> void _push_back(input_it first, input_it last) {
     while (first != last) {
       push_back(*first++);
     }
@@ -226,7 +230,7 @@ class deque_of_unique {
     return any_added;
   }
 
-  void swap(deque_of_unique &other) noexcept {
+  void swap(deque_of_unique &other) NOEXCEPT_CXX17 {
     deque_.swap(other.deque_);
     set_.swap(other.set_);
   }
@@ -248,8 +252,8 @@ class deque_of_unique {
   const DequeType &deque() const { return deque_; }
   const UnorderedSetType &set() const { return set_; }
 
- private:
+private:
   DequeType deque_;
   UnorderedSetType set_;
-};  // class deque_of_unique
-};  // namespace containerofunique
+}; // class deque_of_unique
+}; // namespace containerofunique
