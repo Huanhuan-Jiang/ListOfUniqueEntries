@@ -130,6 +130,7 @@ TEST(DequeOfUniqueTest, MoveAssignmentOperator) {
 TEST(DequeOfUniqueTest, MoveAssignmentIsNoexcept) {
   containerofunique::deque_of_unique<std::string> dou1;
   containerofunique::deque_of_unique<std::string> dou2;
+  containerofunique::deque_of_unique<std::string> dou3;
 
   // Static assertion to check if the move assignment operator is noexcept
   static_assert(
@@ -143,9 +144,10 @@ TEST(DequeOfUniqueTest, MoveAssignmentIsNoexcept) {
   EXPECT_NO_THROW(dou1 = std::move(dou2));
 
   // Test non-empty containers
-  dou2.push_back("Hello, world!");
-  EXPECT_NO_THROW(dou1 = std::move(dou2));
-  EXPECT_TRUE(dou2.empty());
+  dou3.push_back("Hello, world!");
+  EXPECT_NO_THROW(dou1 = std::move(dou3));
+  // NOLINTNEXTLINE(bugprone-use-after-move,-warnings-as-errors)
+  EXPECT_TRUE(dou3.empty());
 
   // Self-assignment test (optional, but good for robustness)
   dou1 = std::move(dou1);
@@ -889,6 +891,7 @@ TEST(DequeOfUniqueTest, MemberFunctionSwap) {
 TEST(DequeOfUniqueTest, SwapIsNoexcept) {
   containerofunique::deque_of_unique<std::string> dou1;
   containerofunique::deque_of_unique<std::string> dou2;
+  containerofunique::deque_of_unique<std::string> dou3;
 
   // Static assertion to check if the swap function is noexcept
   static_assert(noexcept(dou1.swap(dou2)), "Swap function should be noexcept.");
@@ -898,10 +901,10 @@ TEST(DequeOfUniqueTest, SwapIsNoexcept) {
 
   // Test non-empty containers
   dou1.push_back("hello");
-  dou2.push_back("world");
-  EXPECT_NO_THROW(dou1.swap(dou2));
+  dou3.push_back("world");
+  EXPECT_NO_THROW(dou1.swap(dou3));
   EXPECT_TRUE(dou1.front() == "world");
-  EXPECT_TRUE(dou2.front() == "hello");
+  EXPECT_TRUE(dou3.front() == "hello");
 
   // Self-swap test (optional but good for robustness)
   EXPECT_NO_THROW(dou1.swap(dou1));  // Self-swap should not throw an exception
