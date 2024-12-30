@@ -1115,7 +1115,7 @@ TEST(DequeOfUniqueTest, Find) {
   EXPECT_EQ(it_str_not_found, dou_str.cend());
 }
 
-TEST(DequeOfUniqueTest, EraseWithStrings) {
+TEST(DequeOfUniqueTest, NonmemberEraseWithStrings) {
   deque_of_unique<std::string> dou = {"apple", "banana", "cherry"};
 
   // Test 1: Erase a string element that exists in the container
@@ -1141,7 +1141,7 @@ TEST(DequeOfUniqueTest, EraseWithStrings) {
   EXPECT_EQ(dou.size(), 0);
 }
 
-TEST(DequeOfUniqueTest, EraseMultipleStringElements) {
+TEST(DequeOfUniqueTest, NonmemberEraseMultipleStringElements) {
   deque_of_unique<std::string> dou;
 
   // Test 1: Erase multiple string elements sequentially
@@ -1165,7 +1165,7 @@ TEST(DequeOfUniqueTest, EraseMultipleStringElements) {
   EXPECT_EQ(dou.find("cherry"), dou.cend());  // "cherry" should be removed
 }
 
-TEST(DequeOfUniqueTest, EraseEdgeCasesWithStrings) {
+TEST(DequeOfUniqueTest, NonmemberEraseEdgeCasesWithStrings) {
   deque_of_unique<std::string> dou;
 
   // Test 1: Erase from an empty container
@@ -1178,7 +1178,7 @@ TEST(DequeOfUniqueTest, EraseEdgeCasesWithStrings) {
   EXPECT_EQ(dou.size(), 0);
 }
 
-TEST(DequeOfUniqueTest, EraseNonExistentStringElement) {
+TEST(DequeOfUniqueTest, NonmemberEraseNonExistentStringElement) {
   deque_of_unique<std::string> dou;
 
   // Test 1: Erase non-existent string element from an empty container
