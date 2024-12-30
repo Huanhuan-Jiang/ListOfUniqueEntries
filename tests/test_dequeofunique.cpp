@@ -1193,3 +1193,73 @@ TEST(DequeOfUniqueTest, NonmemberEraseNonExistentStringElement) {
   EXPECT_EQ(erase(dou, "grape"), 0);
   EXPECT_EQ(dou.size(), 3);
 }
+
+TEST(DequeOfUniqueTest, EraseIfBasicFunctionality) {
+  deque_of_unique<int> dou = {1, 2, 3, 4, 5, 6};
+  auto pred = [](int x) { return x % 2 == 0; };
+  size_t removed_count = erase_if(dou, pred);
+  EXPECT_EQ(removed_count, 3);
+  EXPECT_EQ(dou.size(), 3);
+  EXPECT_TRUE(dou.find(2) == dou.cend());
+  EXPECT_TRUE(dou.find(4) == dou.cend());
+  EXPECT_TRUE(dou.find(6) == dou.cend());
+}
+
+TEST(DequeOfUniqueTest, EraseIfNoElementsRemoved) {
+  deque_of_unique<int> dou = {1, 3, 5, 7, 9};
+  auto pred = [](int x) { return x % 2 == 0; };
+  size_t removed_count = erase_if(dou, pred);
+  EXPECT_EQ(removed_count, 0);
+  EXPECT_EQ(dou.size(), 5);
+}
+
+TEST(DequeOfUniqueTest, EraseIfAllElementsRemoved) {
+  deque_of_unique<int> dou = {2, 4, 6, 8, 10};
+  auto pred = [](int x) { return x % 2 == 0; };
+  size_t removed_count = erase_if(dou, pred);
+  EXPECT_EQ(removed_count, 5);
+  EXPECT_EQ(dou.size(), 0);
+}
+
+TEST(DequeOfUniqueTest, EraseIfEmptyContainer) {
+  deque_of_unique<int> dou;
+  auto pred = [](int x) { return x % 2 == 0; };
+  size_t removed_count = erase_if(dou, pred);
+  EXPECT_EQ(removed_count, 0);
+  EXPECT_EQ(dou.size(), 0);
+}
+
+TEST(DequeOfUniqueTest, EraseIfSingleElementRemoved) {
+  deque_of_unique<int> dou = {4};
+  auto pred = [](int x) { return x % 2 == 0; };
+  size_t removed_count = erase_if(dou, pred);
+  EXPECT_EQ(removed_count, 1);
+  EXPECT_EQ(dou.size(), 0);
+}
+
+TEST(DequeOfUniqueTest, EraseIfSingleElementNotRemoved) {
+  deque_of_unique<int> dou = {3};
+  auto pred = [](int x) { return x % 2 == 0; };
+  size_t removed_count = erase_if(dou, pred);
+  EXPECT_EQ(removed_count, 0);
+  EXPECT_EQ(dou.size(), 1);
+}
+
+TEST(DequeOfUniqueTest, EraseIfWithStrings) {
+  deque_of_unique<std::string> dou = {"apple", "banana", "cherry", "date"};
+  auto pred = [](const std::string &s) { return s[0] == 'b'; };
+  size_t removed_count = erase_if(dou, pred);
+  EXPECT_EQ(removed_count, 1);
+  EXPECT_EQ(dou.size(), 3);
+  EXPECT_TRUE(dou.find("banana") == dou.cend());
+}
+
+TEST(DequeOfUniqueTest, EraseIfWithComplexPredicate) {
+  deque_of_unique<std::string> dou = {"apple", "banana", "cherry", "date"};
+  auto pred = [](const std::string &s) { return s.length() > 5; };
+  size_t removed_count = erase_if(dou, pred);
+  EXPECT_EQ(removed_count, 2);
+  EXPECT_EQ(dou.size(), 2);
+  EXPECT_TRUE(dou.find("banana") == dou.cend());
+  EXPECT_TRUE(dou.find("cherry") == dou.cend());
+}
