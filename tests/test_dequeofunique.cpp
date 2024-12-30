@@ -1071,6 +1071,7 @@ TEST(DequeOfUniqueTest, ComparisonOperatorsWithStringCXX20) {
   dou3.push_front("morning");
   EXPECT_TRUE((dou3 <=> dou1) == std::strong_ordering::greater);
 }
+#endif
 
 TEST(DequeOfUniqueTest, Find) {
   // Test 1: Find in an empty container
