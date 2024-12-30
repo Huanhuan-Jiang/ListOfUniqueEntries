@@ -272,4 +272,17 @@ class deque_of_unique {
   UnorderedSetType set_;
 };  // class deque_of_unique
 
+// Non-member function
+template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>,
+          class U>
+typename deque_of_unique<T, Hash, KeyEqual>::size_type erase(
+    deque_of_unique<T, Hash, KeyEqual> &c, const U &value) {
+  auto it = c.find(value);
+  if (it != c.cend()) {
+    c.erase(it);
+    return 1;
+  }
+  return 0;
+}
+
 };  // namespace containerofunique

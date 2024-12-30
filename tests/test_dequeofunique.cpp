@@ -14,6 +14,8 @@
 
 #include "dequeofunique.h"
 
+using namespace containerofunique;
+
 TEST(DequeOfUniqueTest, DefaultConstructor) {
   containerofunique::deque_of_unique<int> dou;
   std::deque<int> emptydq;
@@ -1110,4 +1112,83 @@ TEST(DequeOfUniqueTest, Find) {
 
   auto it_str_not_found = dou_str.find("unknown");
   EXPECT_EQ(it_str_not_found, dou_str.cend());
+}
+
+TEST(DequeOfUniqueTest, EraseWithStrings) {
+  deque_of_unique<std::string> dou = {"apple", "banana", "cherry"};
+
+  // Test 1: Erase a string element that exists in the container
+  // Erase an existing string element
+  EXPECT_EQ(erase(dou, "banana"), 1);
+  EXPECT_EQ(dou.size(), 2);
+  EXPECT_EQ(dou.find("banana"), dou.cend());
+
+  // Test 2: Erase a string element that does not exist in the container
+  EXPECT_EQ(erase(dou, "grape"), 0);
+  EXPECT_EQ(dou.size(), 2);
+
+  // Test 3: Erase the last string element in the container
+  EXPECT_EQ(erase(dou, "apple"), 1);
+  EXPECT_EQ(dou.size(), 1);
+
+  // Test 4: Erase the remaining string element
+  EXPECT_EQ(erase(dou, "cherry"), 1);
+  EXPECT_EQ(dou.size(), 0);
+
+  // Test 5: Erase from an empty container
+  EXPECT_EQ(erase(dou, "grape"), 0);
+  EXPECT_EQ(dou.size(), 0);
+}
+
+TEST(DequeOfUniqueTest, EraseMultipleStringElements) {
+  deque_of_unique<std::string> dou;
+
+  // Test 1: Erase multiple string elements sequentially
+  dou.push_back("apple");
+  dou.push_back("banana");
+  dou.push_back("cherry");
+
+  // Remove first element
+  EXPECT_EQ(erase(dou, "apple"), 1);
+  EXPECT_EQ(dou.size(), 2);
+  EXPECT_EQ(dou.find("apple"), dou.cend());  // "apple" should be removed
+
+  // Remove second element
+  EXPECT_EQ(erase(dou, "banana"), 1);
+  EXPECT_EQ(dou.size(), 1);
+  EXPECT_EQ(dou.find("banana"), dou.cend());  // "banana" should be removed
+
+  // Remove last element
+  EXPECT_EQ(erase(dou, "cherry"), 1);
+  EXPECT_EQ(dou.size(), 0);
+  EXPECT_EQ(dou.find("cherry"), dou.cend());  // "cherry" should be removed
+}
+
+TEST(DequeOfUniqueTest, EraseEdgeCasesWithStrings) {
+  deque_of_unique<std::string> dou;
+
+  // Test 1: Erase from an empty container
+  EXPECT_EQ(erase(dou, "orange"), 0);
+  EXPECT_EQ(dou.size(), 0);
+
+  // Test 2: Erase from a container with a single string element
+  dou.push_back("apple");
+  EXPECT_EQ(erase(dou, "apple"), 1);
+  EXPECT_EQ(dou.size(), 0);
+}
+
+TEST(DequeOfUniqueTest, EraseNonExistentStringElement) {
+  deque_of_unique<std::string> dou;
+
+  // Test 1: Erase non-existent string element from an empty container
+  EXPECT_EQ(erase(dou, "orange"), 0);
+  EXPECT_EQ(dou.size(), 0);
+
+  // Test 2: Erase non-existent string element from a container with some
+  // elements
+  dou.push_back("apple");
+  dou.push_back("banana");
+  dou.push_back("cherry");
+  EXPECT_EQ(erase(dou, "grape"), 0);
+  EXPECT_EQ(dou.size(), 3);
 }
