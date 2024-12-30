@@ -1069,4 +1069,45 @@ TEST(DequeOfUniqueTest, ComparisonOperatorsWithStringCXX20) {
   dou3.push_front("morning");
   EXPECT_TRUE((dou3 <=> dou1) == std::strong_ordering::greater);
 }
-#endif
+
+TEST(DequeOfUniqueTest, Find) {
+  // Test 1: Find in an empty container
+  containerofunique::deque_of_unique<int> dou_empty;
+  auto it_empty = dou_empty.find(10);
+  EXPECT_EQ(it_empty, dou_empty.cend());
+
+  // Test 2: Find an element that exists in the container
+  containerofunique::deque_of_unique<int> dou = {10, 20, 30};
+  auto it = dou.find(20);
+  EXPECT_NE(it, dou.cend());
+  EXPECT_EQ(*it, 20);
+
+  // Test 3: Find an element that does not exist
+  auto it_not_found = dou.find(40);
+  EXPECT_EQ(it_not_found, dou.cend());
+
+  // Test 4: Find element at the beginning
+  auto it_first = dou.find(10);
+  EXPECT_NE(it_first, dou.cend());
+  EXPECT_EQ(*it_first, 10);
+
+  // Test 5: Find element at the end
+  auto it_last = dou.find(30);
+  EXPECT_NE(it_last, dou.cend());
+  EXPECT_EQ(*it_last, 30);
+
+  // Test 6: Multiple lookups
+  auto it_again = dou.find(20);
+  EXPECT_EQ(it_again, it);
+  EXPECT_EQ(*it_again, 20);
+
+  // Test 7: Find in a container with complex data types (e.g., std::string)
+  containerofunique::deque_of_unique<std::string> dou_str = {"hello", "world",
+                                                             "goodbye"};
+  auto it_str = dou_str.find("world");
+  EXPECT_NE(it_str, dou_str.cend());
+  EXPECT_EQ(*it_str, "world");
+
+  auto it_str_not_found = dou_str.find("unknown");
+  EXPECT_EQ(it_str_not_found, dou_str.cend());
+}

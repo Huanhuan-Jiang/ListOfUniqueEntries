@@ -242,6 +242,24 @@ class deque_of_unique {
 
   size_type size() const noexcept { return deque_.size(); }
 
+  // operators
+  auto operator<=>(const deque_of_unique &other) const {
+    return deque_ <=> other.deque_;
+  }
+
+  // Look up
+  template <class K>
+  const_iterator find(const K &x) const {
+    auto it = cbegin();
+    while (it != cend()) {
+      if (*it == x) {
+        return it;
+      }
+      it++;
+    }
+    return cend();
+  }
+
   // Destructor
   ~deque_of_unique() = default;
 
@@ -254,56 +272,4 @@ class deque_of_unique {
   UnorderedSetType set_;
 };  // class deque_of_unique
 
-// Non-member operator overloads
-// Operators before C++20
-#if __cplusplus < 202003L
-template <class T, class Hash, class KeyEqual>
-bool operator==(const deque_of_unique<T, Hash, KeyEqual> &lhs,
-                const deque_of_unique<T, Hash, KeyEqual> &rhs) {
-  return lhs.deque() == rhs.deque();
-}
-
-template <class T, class Hash, class KeyEqual>
-bool operator!=(const deque_of_unique<T, Hash, KeyEqual> &lhs,
-                const deque_of_unique<T, Hash, KeyEqual> &rhs) {
-  return !(lhs == rhs);  // Reuse the equality operator
-}
-
-template <class T, class Hash, class KeyEqual>
-bool operator<(const deque_of_unique<T, Hash, KeyEqual> &lhs,
-               const deque_of_unique<T, Hash, KeyEqual> &rhs) {
-  return (lhs..deque() <=> rhs..deque()) == std::weak_ordering::less;
-}
-
-template <class T, class Hash, class KeyEqual>
-bool operator<=(const deque_of_unique<T, Hash, KeyEqual> &lhs,
-                const deque_of_unique<T, Hash, KeyEqual> &rhs) {
-  auto cmp = lhs.deque() <=> rhs.deque();
-  return cmp == std::weak_ordering::less ||
-         cmp == std::weak_ordering::equivalent;
-}
-
-template <class T, class Hash, class KeyEqual>
-bool operator>(const deque_of_unique<T, Hash, KeyEqual> &lhs,
-               const deque_of_unique<T, Hash, KeyEqual> &rhs) {
-  return (lhs.deque() <=> rhs.deque()) == std::weak_ordering::greater;
-}
-
-template <class T, class Hash, class KeyEqual>
-bool operator>=(const deque_of_unique<T, Hash, KeyEqual> &lhs,
-                const deque_of_unique<T, Hash, KeyEqual> &rhs) {
-  auto cmp = lhs.deque() <=> rhs.deque();
-  return cmp == std::weak_ordering::greater ||
-         cmp == std::weak_ordering::equivalent;
-}
-
-#else
-// Operators after C++20
-template <class T, class Hash, class KeyEqual>
-std::strong_ordering operator<=>(
-    const deque_of_unique<T, Hash, KeyEqual> &lhs,
-    const deque_of_unique<T, Hash, KeyEqual> &rhs) {
-  return lhs.deque() <=> rhs.deque();
-}
-#endif
 };  // namespace containerofunique
