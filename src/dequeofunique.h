@@ -247,7 +247,19 @@ class deque_of_unique {
     return deque_ <=> other.deque_;
   }
 
-  // Look up
+// Look up
+#if __cplusplus < 202003L  // Before C++20
+  const_iterator find(const T &x) const {
+    auto it = cbegin();
+    while (it != cend()) {
+      if (*it == x) {
+        return it;
+      }
+      it++;
+    }
+    return cend();
+  }
+#else  // C++20 or later
   template <class K>
   const_iterator find(const K &x) const {
     auto it = cbegin();
@@ -259,6 +271,7 @@ class deque_of_unique {
     }
     return cend();
   }
+#endif
 
   // Destructor
   ~deque_of_unique() = default;
@@ -273,6 +286,7 @@ class deque_of_unique {
 };  // class deque_of_unique
 
 // Non-member function
+#if __cplusplus >= 202002L && __cplusplus < 202600L  // C++20 to C++26
 template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>,
           class U>
 typename deque_of_unique<T, Hash, KeyEqual>::size_type erase(
@@ -284,5 +298,18 @@ typename deque_of_unique<T, Hash, KeyEqual>::size_type erase(
   }
   return 0;
 }
+#else
+template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>,
+          class U = T>
+typename deque_of_unique<T, Hash, KeyEqual>::size_type erase(
+    deque_of_unique<T, Hash, KeyEqual> &c, const U &value) {
+  auto it = c.find(value);
+  if (it != c.cend()) {
+    c.erase(it);
+    return 1;
+  }
+  return 0;
+}
+#endif
 
 };  // namespace containerofunique
