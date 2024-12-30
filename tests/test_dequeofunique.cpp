@@ -17,7 +17,7 @@
 using namespace containerofunique;
 
 TEST(DequeOfUniqueTest, DefaultConstructor) {
-  containerofunique::deque_of_unique<int> dou;
+  deque_of_unique<int> dou;
   std::deque<int> emptydq;
   std::unordered_set<int> emptyset;
 
@@ -27,7 +27,7 @@ TEST(DequeOfUniqueTest, DefaultConstructor) {
 
 TEST(DequeOfUniqueTest, ConstructorInitializesFromIterators) {
   std::deque<int> dq = {1, 2, 3, 4, 5};
-  containerofunique::deque_of_unique<int> dou(dq.begin(), dq.end());
+  deque_of_unique<int> dou(dq.begin(), dq.end());
 
   EXPECT_EQ(dou.deque(), dq);
   EXPECT_THAT(std::deque<int>(dou.set().begin(), dou.set().end()),
@@ -35,10 +35,9 @@ TEST(DequeOfUniqueTest, ConstructorInitializesFromIterators) {
 }
 
 TEST(DequeOfUniqueTest, ConstructorWithInitializerListChecksDequeAndSet) {
-  containerofunique::deque_of_unique<int> dou1 = {1};
-  containerofunique::deque_of_unique<int> dou2 = {1, 2};
-  containerofunique::deque_of_unique<int> dou3 = {1, 2, 3,
-                                                  3};  // duplicate elements
+  deque_of_unique<int> dou1 = {1};
+  deque_of_unique<int> dou2 = {1, 2};
+  deque_of_unique<int> dou3 = {1, 2, 3, 3};  // duplicate elements
 
   std::deque<int> dq1 = {1};
   std::deque<int> dq2 = {1, 2};
@@ -57,25 +56,25 @@ TEST(DequeOfUniqueTest, ConstructorWithInitializerListChecksDequeAndSet) {
 }
 
 TEST(DequeOfUniqueTest, CopyConstructor_EmptyDeque) {
-  containerofunique::deque_of_unique<int> dou1;
+  deque_of_unique<int> dou1;
   // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
-  containerofunique::deque_of_unique<int> dou2(dou1);
+  deque_of_unique<int> dou2(dou1);
   EXPECT_TRUE(dou2.deque().empty());
   EXPECT_TRUE(dou2.set().empty());
 }
 
 TEST(DequeOfUniqueTest, CopyConstructor_SingleElement) {
-  containerofunique::deque_of_unique<int> dou1 = {42};
+  deque_of_unique<int> dou1 = {42};
   // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
-  containerofunique::deque_of_unique<int> dou2(dou1);
+  deque_of_unique<int> dou2(dou1);
   std::deque<int> dq = {42};
   EXPECT_EQ(dou2.deque(), dq);
   EXPECT_THAT(dou2.set(), ::testing::UnorderedElementsAreArray(dq));
 }
 
 TEST(DequeOfUniqueTest, CopyConstructor_Independence) {
-  containerofunique::deque_of_unique<int> dou1 = {1, 2, 3};
-  containerofunique::deque_of_unique<int> dou2(dou1);
+  deque_of_unique<int> dou1 = {1, 2, 3};
+  deque_of_unique<int> dou2(dou1);
 
   dou1.push_back(4);  // Modify the original
   EXPECT_EQ(dou1.deque(), std::deque<int>({1, 2, 3, 4}));
@@ -88,25 +87,24 @@ TEST(DequeOfUniqueTest, CopyConstructor_LargeData) {
   std::iota(large_data.begin(), large_data.end(), 0);
 
   // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
-  containerofunique::deque_of_unique<int> dou1(large_data.begin(),
-                                               large_data.end());
+  deque_of_unique<int> dou1(large_data.begin(), large_data.end());
   // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
-  containerofunique::deque_of_unique<int> dou2(dou1);
+  deque_of_unique<int> dou2(dou1);
 
   EXPECT_EQ(dou1.deque(), dou2.deque());
   EXPECT_THAT(dou2.set(), ::testing::UnorderedElementsAreArray(large_data));
 }
 
 TEST(DequeOfUniqueTest, MoveConstructor) {
-  containerofunique::deque_of_unique<int> dou1 = {1, 2, 3, 4};
-  containerofunique::deque_of_unique<int> dou2(std::move(dou1));
+  deque_of_unique<int> dou1 = {1, 2, 3, 4};
+  deque_of_unique<int> dou2(std::move(dou1));
   std::deque<int> dq = {1, 2, 3, 4};
   EXPECT_EQ(dou2.deque(), dq);
 }
 
 TEST(DequeOfUniqueTest, CopyAssignmentOperator) {
-  containerofunique::deque_of_unique<int> dou1 = {1, 2, 3, 4};
-  containerofunique::deque_of_unique<int> dou2 = dou1;
+  deque_of_unique<int> dou1 = {1, 2, 3, 4};
+  deque_of_unique<int> dou2 = dou1;
   std::deque<int> dq = {1, 2, 3, 4};
 
   EXPECT_EQ(dou2.deque(), dou1.deque());
@@ -118,8 +116,8 @@ TEST(DequeOfUniqueTest, CopyAssignmentOperator) {
 }
 
 TEST(DequeOfUniqueTest, MoveAssignmentOperator) {
-  containerofunique::deque_of_unique<int> dou1 = {1, 2, 3, 4};
-  containerofunique::deque_of_unique<int> dou2 = std::move(dou1);
+  deque_of_unique<int> dou1 = {1, 2, 3, 4};
+  deque_of_unique<int> dou2 = std::move(dou1);
   std::deque<int> dq = {1, 2, 3, 4};
 
   EXPECT_EQ(dou2.deque(), dq);
@@ -130,17 +128,14 @@ TEST(DequeOfUniqueTest, MoveAssignmentOperator) {
 // Conditionally define a test for C++17 or later
 #if __cplusplus >= 201703L
 TEST(DequeOfUniqueTest, MoveAssignmentIsNoexcept) {
-  containerofunique::deque_of_unique<std::string> dou1;
-  containerofunique::deque_of_unique<std::string> dou2;
-  containerofunique::deque_of_unique<std::string> dou3;
+  deque_of_unique<std::string> dou1;
+  deque_of_unique<std::string> dou2;
+  deque_of_unique<std::string> dou3;
 
   // Static assertion to check if the move assignment operator is noexcept
-  static_assert(
-      noexcept(
-          std::declval<containerofunique::deque_of_unique<std::string> &>() =
-              std::declval<
-                  containerofunique::deque_of_unique<std::string> &&>()),
-      "Move assignment operator should be noexcept.");
+  static_assert(noexcept(std::declval<deque_of_unique<std::string> &>() =
+                             std::declval<deque_of_unique<std::string> &&>()),
+                "Move assignment operator should be noexcept.");
 
   // Test empty containers
   EXPECT_NO_THROW(dou1 = std::move(dou2));
@@ -158,7 +153,7 @@ TEST(DequeOfUniqueTest, MoveAssignmentIsNoexcept) {
 #endif
 
 TEST(DequeOfUniqueTest, InitializerListAssignmentOperator) {
-  containerofunique::deque_of_unique<int> dou = {1, 2, 3, 4};
+  deque_of_unique<int> dou = {1, 2, 3, 4};
   std::deque<int> dq = {1, 2, 3, 4};
   EXPECT_EQ(dou.deque(), dq);
   EXPECT_THAT(std::deque<int>(dou.set().begin(), dou.set().end()),
@@ -166,7 +161,7 @@ TEST(DequeOfUniqueTest, InitializerListAssignmentOperator) {
 }
 
 TEST(DequeOfUniqueTest, ElementAccess) {
-  containerofunique::deque_of_unique<int> dou = {1, 2, 3, 4};
+  deque_of_unique<int> dou = {1, 2, 3, 4};
   EXPECT_EQ(dou.front(), 1);
   EXPECT_EQ(dou.at(1), 2);
   EXPECT_EQ(dou[2], 3);
@@ -174,16 +169,14 @@ TEST(DequeOfUniqueTest, ElementAccess) {
 }
 
 TEST(DequeOfUniqueTest, At_OutOfRange) {
-  containerofunique::deque_of_unique<int> dou = {1, 2, 3, 4};
-  const containerofunique::deque_of_unique<std::string> dou_const = {"hello",
-                                                                     "world"};
+  deque_of_unique<int> dou = {1, 2, 3, 4};
+  const deque_of_unique<std::string> dou_const = {"hello", "world"};
   EXPECT_THROW(dou.at(4), std::out_of_range);
   EXPECT_THROW(dou_const.at(2), std::out_of_range);
 }
 
 TEST(DequeOfUniqueTest, ElementAccess_ConstDeque) {
-  const containerofunique::deque_of_unique<std::string> dou = {"hello",
-                                                               "world"};
+  const deque_of_unique<std::string> dou = {"hello", "world"};
   EXPECT_EQ(dou.front(), "hello");
   EXPECT_EQ(dou.at(0), "hello");
   EXPECT_EQ(dou.at(1), "world");
@@ -193,7 +186,7 @@ TEST(DequeOfUniqueTest, ElementAccess_ConstDeque) {
 }
 
 TEST(DequeOfUniqueTest, CbeginCend_Iteration) {
-  containerofunique::deque_of_unique<int> dou = {1, 2, 3, 4};
+  deque_of_unique<int> dou = {1, 2, 3, 4};
 
   auto it = dou.cbegin();
   EXPECT_EQ(*it, 1);
@@ -208,7 +201,7 @@ TEST(DequeOfUniqueTest, CbeginCend_Iteration) {
 }
 
 TEST(DequeOfUniqueTest, CrbeginCrend_Iteration) {
-  containerofunique::deque_of_unique<int> dou = {1, 2, 3, 4};
+  deque_of_unique<int> dou = {1, 2, 3, 4};
 
   auto rit = dou.crbegin();
   EXPECT_EQ(*rit, 4);
@@ -224,7 +217,7 @@ TEST(DequeOfUniqueTest, CrbeginCrend_Iteration) {
 
 TEST(DequeOfUniqueTest, IteratorsAreNoexcept) {
   // Test with empty container
-  containerofunique::deque_of_unique<int> dou1;
+  deque_of_unique<int> dou1;
   static_assert(noexcept(dou1.cbegin()), "cbegin() should be noexcept.");
   EXPECT_NO_THROW(dou1.cbegin());
   static_assert(noexcept(dou1.cend()), "cend() should be noexcept.");
@@ -235,7 +228,7 @@ TEST(DequeOfUniqueTest, IteratorsAreNoexcept) {
   EXPECT_NO_THROW(dou1.crend());
 
   // Test with non-empty container
-  containerofunique::deque_of_unique<int> dou2 = {1, 2, 3, 4};
+  deque_of_unique<int> dou2 = {1, 2, 3, 4};
   static_assert(noexcept(dou2.cbegin()), "cbegin() should be noexcept.");
   EXPECT_NO_THROW(dou2.cbegin());
   static_assert(noexcept(dou2.cend()), "cend() should be noexcept.");
@@ -246,8 +239,7 @@ TEST(DequeOfUniqueTest, IteratorsAreNoexcept) {
   EXPECT_NO_THROW(dou2.crend());
 
   // Test with complex data (std::string)
-  containerofunique::deque_of_unique<std::string> dou3 = {"apple", "banana",
-                                                          "cherry"};
+  deque_of_unique<std::string> dou3 = {"apple", "banana", "cherry"};
   static_assert(noexcept(dou3.cbegin()), "cbegin() should be noexcept.");
   EXPECT_NO_THROW(dou3.cbegin());
   static_assert(noexcept(dou3.cend()), "cend() should be noexcept.");
@@ -258,7 +250,7 @@ TEST(DequeOfUniqueTest, IteratorsAreNoexcept) {
   EXPECT_NO_THROW(dou3.crend());
 
   // Test with self-move assignment
-  containerofunique::deque_of_unique<int> dou5 = {1, 2, 3};
+  deque_of_unique<int> dou5 = {1, 2, 3};
   static_assert(noexcept(dou5.cbegin()), "cbegin() should be noexcept.");
   EXPECT_NO_THROW(dou5 = std::move(dou5));
   EXPECT_NO_THROW(dou5.cbegin());
@@ -271,14 +263,14 @@ TEST(DequeOfUniqueTest, IteratorsAreNoexcept) {
 }
 
 TEST(DequeOfUniqueTest, EmptyContainer_Iterators) {
-  containerofunique::deque_of_unique<int> empty_dou;
+  deque_of_unique<int> empty_dou;
 
   EXPECT_EQ(empty_dou.cbegin(), empty_dou.cend());
   EXPECT_EQ(empty_dou.crbegin(), empty_dou.crend());
 }
 
 TEST(DequeOfUniqueTest, ConstCorrectness_Iterators) {
-  containerofunique::deque_of_unique<int> dou = {1, 2, 3, 4};
+  deque_of_unique<int> dou = {1, 2, 3, 4};
 
   EXPECT_TRUE((std::same_as<decltype(*dou.cbegin()), const int &>));
   EXPECT_TRUE((std::same_as<decltype(*dou.cend()), const int &>));
@@ -287,14 +279,14 @@ TEST(DequeOfUniqueTest, ConstCorrectness_Iterators) {
 }
 
 TEST(DequeOfUniqueTest, Iterator_ModificationNotAllowed) {
-  containerofunique::deque_of_unique<int> dou = {1, 2, 3, 4};
+  deque_of_unique<int> dou = {1, 2, 3, 4};
   auto const_it = dou.cbegin();
   ASSERT_EQ(*const_it, 1);
   ASSERT_TRUE(std::is_const_v<std::remove_reference_t<decltype(*const_it)>>);
 }
 
 TEST(DequeOfUniqueTest, Clear) {
-  containerofunique::deque_of_unique<int> dou = {1, 2, 3, 4, 5};
+  deque_of_unique<int> dou = {1, 2, 3, 4, 5};
   static_assert(noexcept(dou.clear()), "clear() should be noexcept.");
 
   EXPECT_NO_THROW(dou.clear());
@@ -303,7 +295,7 @@ TEST(DequeOfUniqueTest, Clear) {
 }
 
 TEST(DequeOfUniqueTest, Erase_SingleElement) {
-  containerofunique::deque_of_unique<int> dou = {1, 2, 3, 4, 5};
+  deque_of_unique<int> dou = {1, 2, 3, 4, 5};
   std::deque<int> expected_deque = {2, 3, 4, 5};
   std::unordered_set<int> expected_set = {2, 3, 4, 5};
 
@@ -313,13 +305,13 @@ TEST(DequeOfUniqueTest, Erase_SingleElement) {
 }
 
 TEST(DequeOfUniqueTest, Erase_FromEmptyContainer) {
-  containerofunique::deque_of_unique<int> dou;
+  deque_of_unique<int> dou;
   EXPECT_NO_THROW(dou.erase(dou.cbegin()));
   EXPECT_EQ(dou.deque().size(), 0);
 }
 
 TEST(DequeOfUniqueTest, EraseEmptyRange) {
-  containerofunique::deque_of_unique<int> dou1 = {1, 2, 3, 4, 5, 6};
+  deque_of_unique<int> dou1 = {1, 2, 3, 4, 5, 6};
   std::deque<int> dq2 = {1, 2, 3, 4, 5, 6};
   std::unordered_set<int> set2 = {1, 2, 3, 4, 5, 6};
 
@@ -330,7 +322,7 @@ TEST(DequeOfUniqueTest, EraseEmptyRange) {
 }
 
 TEST(DequeOfUniqueTest, EraseRangeOfElements) {
-  containerofunique::deque_of_unique<int> dou1 = {1, 2, 3, 4, 5, 6};
+  deque_of_unique<int> dou1 = {1, 2, 3, 4, 5, 6};
   std::deque<int> dq2 = {4, 5, 6};
   std::unordered_set<int> set2 = {4, 5, 6};
 
@@ -340,7 +332,7 @@ TEST(DequeOfUniqueTest, EraseRangeOfElements) {
 }
 
 TEST(DequeOfUniqueTest, EraseAllElements) {
-  containerofunique::deque_of_unique<int> dou1 = {1, 2, 3, 4, 5, 6};
+  deque_of_unique<int> dou1 = {1, 2, 3, 4, 5, 6};
   std::deque<int> dq2 = {};
   std::unordered_set<int> set2 = {};
 
@@ -352,7 +344,7 @@ TEST(DequeOfUniqueTest, EraseAllElements) {
 
 TEST(DequeOfUniqueTest, InsertLvalueRvalue) {
   std::cout << "Test inserting a unique element" << '\n';
-  containerofunique::deque_of_unique<int> dou1 = {1};
+  deque_of_unique<int> dou1 = {1};
   std::deque<int> dq1 = {1};
   auto result1 = dou1.insert(dou1.cbegin(), 2);
   auto expected_result1 = dq1.insert(dq1.cbegin(), 2);
@@ -360,14 +352,14 @@ TEST(DequeOfUniqueTest, InsertLvalueRvalue) {
   EXPECT_TRUE(result1.second);
 
   std::cout << "Test inserting a duplicate element" << '\n';
-  containerofunique::deque_of_unique<int> dou2 = {1};
+  deque_of_unique<int> dou2 = {1};
   std::deque<int> dq2 = {1, 2};
   auto result2 = dou2.insert(dou2.cbegin(), 1);
   EXPECT_EQ(*result2.first, *dou2.cbegin());
   EXPECT_FALSE(result2.second);
 
   std::cout << "Test inserting a unique rvalue string element" << '\n';
-  containerofunique::deque_of_unique<std::string> dou3 = {"hello", "world"};
+  deque_of_unique<std::string> dou3 = {"hello", "world"};
   std::deque<std::string> dq3 = {"hello", "world"};
   std::string str1 = "good";
   auto expected_result3 = dq3.insert(dq3.cbegin(), std::move("good"));
@@ -377,7 +369,7 @@ TEST(DequeOfUniqueTest, InsertLvalueRvalue) {
   EXPECT_TRUE(result3.second);
 
   std::cout << "Test inserting a duplicate rvalue string element" << '\n';
-  containerofunique::deque_of_unique<std::string> dou4 = {"hello", "world"};
+  deque_of_unique<std::string> dou4 = {"hello", "world"};
   std::deque<std::string> dq4 = {"hello", "world"};
   std::string str2 = "hello";
   auto result4 = dou4.insert(dou4.cbegin(), std::move(str2));
@@ -387,9 +379,9 @@ TEST(DequeOfUniqueTest, InsertLvalueRvalue) {
 }
 
 TEST(DequeOfUniqueTest, InsertRangeTest) {
-  containerofunique::deque_of_unique<std::string> dou5_1 = {"hello", "world"};
-  containerofunique::deque_of_unique<std::string> dou5_2 = {"good", "morning"};
-  containerofunique::deque_of_unique<std::string> dou5_3 = {"hello", "world"};
+  deque_of_unique<std::string> dou5_1 = {"hello", "world"};
+  deque_of_unique<std::string> dou5_2 = {"good", "morning"};
+  deque_of_unique<std::string> dou5_3 = {"hello", "world"};
   std::deque<std::string> dq5 = {"good", "morning", "hello", "world"};
   auto result5_1 =
       dou5_1.insert(dou5_1.cbegin(), dou5_2.cbegin(), dou5_2.cbegin() + 2);
@@ -400,7 +392,7 @@ TEST(DequeOfUniqueTest, InsertRangeTest) {
   EXPECT_EQ(dou5_1.deque(), dq5);
   EXPECT_EQ(*result5_2, *(dou5_1.cbegin()));
 
-  containerofunique::deque_of_unique<std::string> dou6 = {"hello", "world"};
+  deque_of_unique<std::string> dou6 = {"hello", "world"};
   std::deque<std::string> dq6 = {"good", "morning", "hello", "world"};
   auto result6_1 = dou6.insert(dou6.cbegin(), {"good", "morning"});
   EXPECT_EQ(dou6.deque(), dq6);
@@ -411,7 +403,7 @@ TEST(DequeOfUniqueTest, InsertRangeTest) {
 }
 
 TEST(DequeOfUniqueTest, InsertEmptyRange) {
-  containerofunique::deque_of_unique<std::string> dou1 = {"existing"};
+  deque_of_unique<std::string> dou1 = {"existing"};
   std::deque<std::string> dq1 = {"existing"};
   std::deque<std::string> dq2 = {"hello", "world", "apple", "fruit"};
 
@@ -425,7 +417,7 @@ TEST(DequeOfUniqueTest, InsertEmptyRange) {
 }
 
 TEST(DequeOfUniqueTest, InsertAtEnd) {
-  containerofunique::deque_of_unique<std::string> dou = {"hello"};
+  deque_of_unique<std::string> dou = {"hello"};
   auto result = dou.insert(dou.cend(), "world");
   EXPECT_EQ(*result.first, dou.back());
   EXPECT_EQ(result.second, true);
@@ -433,7 +425,7 @@ TEST(DequeOfUniqueTest, InsertAtEnd) {
 }
 
 TEST(DequeOfUniqueTest, InsertAtBeginning) {
-  containerofunique::deque_of_unique<std::string> dou = {"world"};
+  deque_of_unique<std::string> dou = {"world"};
   auto result = dou.insert(dou.cbegin(), "hello");
   EXPECT_EQ(*result.first, dou.front());
   EXPECT_EQ(result.second, true);
@@ -441,7 +433,7 @@ TEST(DequeOfUniqueTest, InsertAtBeginning) {
 }
 
 TEST(DequeOfUniqueTest, InsertDuplicateElement) {
-  containerofunique::deque_of_unique<std::string> dou = {"hello", "world"};
+  deque_of_unique<std::string> dou = {"hello", "world"};
   auto result = dou.insert(dou.cend(), "hello");
   EXPECT_EQ(result.first, dou.cend());
   EXPECT_EQ(result.second, false);
@@ -449,7 +441,7 @@ TEST(DequeOfUniqueTest, InsertDuplicateElement) {
 }
 
 TEST(DequeOfUniqueTest, InsertIntoEmptyDeque) {
-  containerofunique::deque_of_unique<std::string> dou;
+  deque_of_unique<std::string> dou;
   auto result = dou.insert(dou.cend(), "first");
   EXPECT_EQ(*result.first, dou.front());
   EXPECT_EQ(result.second, true);
@@ -457,7 +449,7 @@ TEST(DequeOfUniqueTest, InsertIntoEmptyDeque) {
 }
 
 TEST(DequeOfUniqueTest, InsertAtSpecificPosition) {
-  containerofunique::deque_of_unique<std::string> dou = {"hello", "world"};
+  deque_of_unique<std::string> dou = {"hello", "world"};
   auto it = dou.cbegin();
   auto result = dou.insert(it + 1, "goodbye");
 
@@ -468,7 +460,7 @@ TEST(DequeOfUniqueTest, InsertAtSpecificPosition) {
 }
 
 TEST(DequeOfUniqueTest, EmplaceIntoEmpty) {
-  containerofunique::deque_of_unique<std::string> dou;
+  deque_of_unique<std::string> dou;
   std::deque<std::string> dq;
 
   auto result = dou.emplace(dou.cbegin(), "hello");
@@ -480,7 +472,7 @@ TEST(DequeOfUniqueTest, EmplaceIntoEmpty) {
 }
 
 TEST(DequeOfUniqueTest, EmplaceAtEnd) {
-  containerofunique::deque_of_unique<std::string> dou = {"hello", "world"};
+  deque_of_unique<std::string> dou = {"hello", "world"};
   std::deque<std::string> dq = {"hello", "world"};
 
   auto result = dou.emplace(dou.cend(), "goodbye");
@@ -514,7 +506,7 @@ struct hash<ThrowingType> {
 }  // namespace std
 
 TEST(DequeOfUniqueTest, EmplaceExceptionSafety) {
-  containerofunique::deque_of_unique<ThrowingType> dou;
+  deque_of_unique<ThrowingType> dou;
 
   // Normal insertion
   EXPECT_NO_THROW(dou.emplace(dou.cbegin(), "hello"));
@@ -528,7 +520,7 @@ TEST(DequeOfUniqueTest, EmplaceExceptionSafety) {
 }
 
 TEST(DequeOfUniqueTest, EmplaceNonString) {
-  containerofunique::deque_of_unique<int> dou = {1, 2, 3};
+  deque_of_unique<int> dou = {1, 2, 3};
   std::deque<int> dq = {1, 2, 3};
 
   auto result = dou.emplace(dou.cbegin(), 4);
@@ -547,7 +539,7 @@ TEST(DequeOfUniqueTest, EmplaceNonString) {
 TEST(DequeOfUniqueTest, EmplaceFront_NewElement) {
   // Test 1: Emplace a new element "good" to the front of dou
   // Expected: "good" should be at the front of the deque
-  containerofunique::deque_of_unique<std::string> dou = {"hello", "world"};
+  deque_of_unique<std::string> dou = {"hello", "world"};
   std::deque<std::string> dq = {"hello", "world"};
   auto result = dou.emplace_front("good");
   dq.emplace_front("good");
@@ -561,7 +553,7 @@ TEST(DequeOfUniqueTest, EmplaceFront_NewElement) {
 TEST(DequeOfUniqueTest, EmplaceFront_DuplicateElement) {
   // Test 2: Try emplacing "good" twice (duplicate value)
   // Expected: No insertion, deque remains unchanged
-  containerofunique::deque_of_unique<std::string> dou = {"hello", "world"};
+  deque_of_unique<std::string> dou = {"hello", "world"};
   std::deque<std::string> dq = {"hello", "world"};
   dou.emplace_front("good");
   dq.emplace_front("good");
@@ -574,7 +566,7 @@ TEST(DequeOfUniqueTest, EmplaceFront_DuplicateElement) {
 TEST(DequeOfUniqueTest, EmplaceFront_Rvalue) {
   // Test 3: Emplace an rvalue "good" to the front of dou
   // Expected: "good" should be inserted at the front of the deque
-  containerofunique::deque_of_unique<std::string> dou = {"hello", "world"};
+  deque_of_unique<std::string> dou = {"hello", "world"};
   std::string str = "good";
   auto result = dou.emplace_front(std::move(str));
   std::deque<std::string> dq = {"good", "hello", "world"};
@@ -588,7 +580,7 @@ TEST(DequeOfUniqueTest, EmplaceFront_Rvalue) {
 TEST(DequeOfUniqueTest, EmplaceFront_DuplicateRvalue) {
   // Test 4: Try emplacing the rvalues "good" twice (duplicate value)
   // Expected: No insertion, deque remains unchanged
-  containerofunique::deque_of_unique<std::string> dou = {"hello", "world"};
+  deque_of_unique<std::string> dou = {"hello", "world"};
   std::string str1 = "good";
   std::string str2 = "good";
   dou.emplace_front(std::move(str1));
@@ -602,7 +594,7 @@ TEST(DequeOfUniqueTest, EmplaceFront_DuplicateRvalue) {
 TEST(DequeOfUniqueTest, EmplaceFront_EmptyDeque) {
   // Test 5: Emplace a new element "first" to an empty deque
   // Expected: "first" should be at the front of the deque
-  containerofunique::deque_of_unique<std::string> dou_empty;
+  deque_of_unique<std::string> dou_empty;
   auto result_empty = dou_empty.emplace_front("first");
   std::deque<std::string> dq = {"first"};
   EXPECT_EQ(*dou_empty.cbegin(), "first");
@@ -616,7 +608,7 @@ TEST(DequeOfUniqueTest, EmplaceFront_MultipleElements) {
   // Test 6: Emplace multiple distinct elements to the front of the deque
   // Expected: Elements should be inserted at the front in the order of
   // emplace_front calls
-  containerofunique::deque_of_unique<std::string> dou = {"hello"};
+  deque_of_unique<std::string> dou = {"hello"};
   dou.emplace_front("world");
   dou.emplace_front("good");
   dou.emplace_front("morning");
@@ -633,7 +625,7 @@ TEST(DequeOfUniqueTest, EmplaceFront_MultipleElements) {
 TEST(DequeOfUniqueTest, EmplaceFront_NonStringType) {
   // Test 7: Emplace an integer to the front of an integer deque (non-string
   // type) Expected: The integer 4 should be at the front of the deque
-  containerofunique::deque_of_unique<int> dou = {1, 2, 3};
+  deque_of_unique<int> dou = {1, 2, 3};
   auto result = dou.emplace_front(4);
   std::deque<int> dq = {1, 2, 3, 4};
   EXPECT_EQ(*dou.cbegin(), 4);
@@ -645,7 +637,7 @@ TEST(DequeOfUniqueTest, EmplaceFront_NonStringType) {
 TEST(DequeOfUniqueTest, EmplaceBack_NewElement) {
   // Test 1: Emplace a new element "good" to the end of dou
   // Emplace_back "good" to dou1
-  containerofunique::deque_of_unique<std::string> dou = {"hello", "world"};
+  deque_of_unique<std::string> dou = {"hello", "world"};
   std::deque<std::string> dq = {"hello", "world"};
   auto result = dou.emplace_back("good");
   dq.emplace_back("good");
@@ -659,7 +651,7 @@ TEST(DequeOfUniqueTest, EmplaceBack_NewElement) {
 TEST(DequeOfUniqueTest, EmplaceBack_DuplicateElement) {
   // Test 2: Try emplacing "good" twice (duplicate value)
   // Expected: No insertion, deque remains unchanged
-  containerofunique::deque_of_unique<std::string> dou = {"hello", "world"};
+  deque_of_unique<std::string> dou = {"hello", "world"};
   std::deque<std::string> dq = {"hello", "world"};
   dou.emplace_back("good");
   dq.emplace_back("good");
@@ -672,7 +664,7 @@ TEST(DequeOfUniqueTest, EmplaceBack_DuplicateElement) {
 TEST(DequeOfUniqueTest, EmplaceBack_Rvalue) {
   // Test 3: Emplace an rvalue "good" to the back of dou
   // Expected: "good" should be inserted at the end of the deque
-  containerofunique::deque_of_unique<std::string> dou = {"hello", "world"};
+  deque_of_unique<std::string> dou = {"hello", "world"};
   std::string str = "good";
   auto result = dou.emplace_back(std::move(str));
   std::deque<std::string> dq = {"hello", "world", "good"};
@@ -686,7 +678,7 @@ TEST(DequeOfUniqueTest, EmplaceBack_Rvalue) {
 TEST(DequeOfUniqueTest, EmplaceBack_DuplicateRvalue) {
   // Test 4: Try emplacing the rvalues "good" twice (duplicate value)
   // Expected: No insertion, deque remains unchanged
-  containerofunique::deque_of_unique<std::string> dou = {"hello", "world"};
+  deque_of_unique<std::string> dou = {"hello", "world"};
   std::string str1 = "good";
   std::string str2 = "good";
   dou.emplace_back(std::move(str1));
@@ -700,7 +692,7 @@ TEST(DequeOfUniqueTest, EmplaceBack_DuplicateRvalue) {
 TEST(DequeOfUniqueTest, EmplaceBack_EmptyDeque) {
   // Test 5: Emplace a new element "first" to an empty deque
   // Expected: "first" should be at the back of the deque
-  containerofunique::deque_of_unique<std::string> dou_empty;
+  deque_of_unique<std::string> dou_empty;
   auto result_empty = dou_empty.emplace_back("first");
   std::deque<std::string> dq = {"first"};
   EXPECT_EQ(*dou_empty.cbegin(), "first");
@@ -714,7 +706,7 @@ TEST(DequeOfUniqueTest, EmplaceBack_MultipleElements) {
   // Test 6: Emplace multiple distinct elements to the back of the deque
   // Expected: Elements should be inserted at the back in the order of
   // emplace_back calls
-  containerofunique::deque_of_unique<std::string> dou = {"hello"};
+  deque_of_unique<std::string> dou = {"hello"};
   dou.emplace_back("world");
   dou.emplace_back("good");
   dou.emplace_back("morning");
@@ -731,7 +723,7 @@ TEST(DequeOfUniqueTest, EmplaceBack_MultipleElements) {
 TEST(DequeOfUniqueTest, EmplaceBack_NonStringType) {
   // Test 7: Emplace an integer to the back of an integer deque (non-string
   // type) Expected: The integer 4 should be at the back of the deque
-  containerofunique::deque_of_unique<int> dou = {1, 2, 3};
+  deque_of_unique<int> dou = {1, 2, 3};
   auto result = dou.emplace_back(4);
   std::deque<int> dq = {1, 2, 3, 4};
   EXPECT_EQ(*(dou.cend() - 1), 4);
@@ -742,22 +734,21 @@ TEST(DequeOfUniqueTest, EmplaceBack_NonStringType) {
 }
 
 TEST(DequeOfUniqueTest, PopFront_EmptyDeque) {
-  containerofunique::deque_of_unique<std::string> dou;
+  deque_of_unique<std::string> dou;
   EXPECT_NO_THROW(dou.pop_front());
   EXPECT_TRUE(dou.deque().empty());
   EXPECT_TRUE(dou.set().empty());
 }
 
 TEST(DequeOfUniqueTest, PopFront_SingleElement) {
-  containerofunique::deque_of_unique<std::string> dou = {"hello"};
+  deque_of_unique<std::string> dou = {"hello"};
   dou.pop_front();
   EXPECT_TRUE(dou.deque().empty());
   EXPECT_TRUE(dou.set().empty());
 }
 
 TEST(DequeOfUniqueTest, PopFront_MultipleSequential) {
-  containerofunique::deque_of_unique<std::string> dou = {"hello", "world",
-                                                         "goodbye"};
+  deque_of_unique<std::string> dou = {"hello", "world", "goodbye"};
   dou.pop_front();
   EXPECT_EQ(dou.deque(), (std::deque<std::string>{"world", "goodbye"}));
   EXPECT_THAT(dou.set(), ::testing::UnorderedElementsAre("world", "goodbye"));
@@ -772,7 +763,7 @@ TEST(DequeOfUniqueTest, PopFront_MultipleSequential) {
 }
 
 TEST(DequeOfUniqueTest, Front_AfterModification) {
-  containerofunique::deque_of_unique<std::string> dou = {"hello", "world"};
+  deque_of_unique<std::string> dou = {"hello", "world"};
 
   // Add a new element at the front
   dou.emplace_front("good");
@@ -784,22 +775,21 @@ TEST(DequeOfUniqueTest, Front_AfterModification) {
 }
 
 TEST(DequeOfUniqueTest, PopBack_EmptyDeque) {
-  containerofunique::deque_of_unique<std::string> dou;
+  deque_of_unique<std::string> dou;
   EXPECT_NO_THROW(dou.pop_back());
   EXPECT_TRUE(dou.deque().empty());
   EXPECT_TRUE(dou.set().empty());
 }
 
 TEST(DequeOfUniqueTest, PopBack_SingleElement) {
-  containerofunique::deque_of_unique<std::string> dou = {"hello"};
+  deque_of_unique<std::string> dou = {"hello"};
   dou.pop_back();
   EXPECT_TRUE(dou.deque().empty());
   EXPECT_TRUE(dou.set().empty());
 }
 
 TEST(DequeOfUniqueTest, PopBack_MultipleSequential) {
-  containerofunique::deque_of_unique<std::string> dou = {"hello", "world",
-                                                         "goodbye"};
+  deque_of_unique<std::string> dou = {"hello", "world", "goodbye"};
   dou.pop_back();
   EXPECT_EQ(dou.deque(), (std::deque<std::string>{"hello", "world"}));
   EXPECT_THAT(dou.set(), ::testing::UnorderedElementsAre("hello", "world"));
@@ -814,7 +804,7 @@ TEST(DequeOfUniqueTest, PopBack_MultipleSequential) {
 }
 
 TEST(DequeOfUniqueTest, PushFront_NewElement) {
-  containerofunique::deque_of_unique<std::string> dou = {"hello", "world"};
+  deque_of_unique<std::string> dou = {"hello", "world"};
   std::deque<std::string> expected = {"good", "hello", "world"};
 
   // Test pushing a new element to the front
@@ -825,7 +815,7 @@ TEST(DequeOfUniqueTest, PushFront_NewElement) {
 }
 
 TEST(DequeOfUniqueTest, PushFront_DuplicateElement) {
-  containerofunique::deque_of_unique<std::string> dou = {"hello", "world"};
+  deque_of_unique<std::string> dou = {"hello", "world"};
   std::deque<std::string> expected = {"hello", "world"};
 
   // Test pushing a duplicate element
@@ -836,7 +826,7 @@ TEST(DequeOfUniqueTest, PushFront_DuplicateElement) {
 }
 
 TEST(DequeOfUniqueTest, PushFront_Rvalue) {
-  containerofunique::deque_of_unique<std::string> dou = {"hello", "world"};
+  deque_of_unique<std::string> dou = {"hello", "world"};
   std::deque<std::string> expected = {"good", "hello", "world"};
 
   // Test pushing an rvalue to the front
@@ -848,7 +838,7 @@ TEST(DequeOfUniqueTest, PushFront_Rvalue) {
 }
 
 TEST(DequeOfUniqueTest, PushFront_EmptyRvalue) {
-  containerofunique::deque_of_unique<std::string> dou = {"hello", "world"};
+  deque_of_unique<std::string> dou = {"hello", "world"};
   std::deque<std::string> expected = {"", "hello", "world"};
 
   // Test pushing an empty string as an rvalue
@@ -860,7 +850,7 @@ TEST(DequeOfUniqueTest, PushFront_EmptyRvalue) {
 }
 
 TEST(DequeOfUniqueTest, PushBack_NewElement) {
-  containerofunique::deque_of_unique<std::string> dou = {"hello", "world"};
+  deque_of_unique<std::string> dou = {"hello", "world"};
   std::deque<std::string> expected = {"hello", "world", "good"};
 
   // Test pushing a new element to the back
@@ -871,7 +861,7 @@ TEST(DequeOfUniqueTest, PushBack_NewElement) {
 }
 
 TEST(DequeOfUniqueTest, PushBack_DuplicateElement) {
-  containerofunique::deque_of_unique<std::string> dou = {"hello", "world"};
+  deque_of_unique<std::string> dou = {"hello", "world"};
   std::deque<std::string> expected = {"hello", "world"};
 
   // Test pushing a duplicate element
@@ -883,7 +873,7 @@ TEST(DequeOfUniqueTest, PushBack_DuplicateElement) {
 }
 
 TEST(DequeOfUniqueTest, PushBack_Rvalue) {
-  containerofunique::deque_of_unique<std::string> dou = {"hello", "world"};
+  deque_of_unique<std::string> dou = {"hello", "world"};
   std::deque<std::string> expected = {"hello", "world", "good"};
 
   // Test pushing an rvalue to the back
@@ -895,7 +885,7 @@ TEST(DequeOfUniqueTest, PushBack_Rvalue) {
 }
 
 TEST(DequeOfUniqueTest, PushBack_EmptyRvalue) {
-  containerofunique::deque_of_unique<std::string> dou = {"hello", "world"};
+  deque_of_unique<std::string> dou = {"hello", "world"};
   std::deque<std::string> expected = {"hello", "world", ""};
 
   // Test pushing an empty string as an rvalue
@@ -907,7 +897,7 @@ TEST(DequeOfUniqueTest, PushBack_EmptyRvalue) {
 }
 
 TEST(DequeOfUniqueTest, PushBack_EmptyContainer) {
-  containerofunique::deque_of_unique<std::string> dou;
+  deque_of_unique<std::string> dou;
   std::deque<std::string> expected = {"hello"};
 
   // Test pushing to an initially empty container
@@ -918,8 +908,8 @@ TEST(DequeOfUniqueTest, PushBack_EmptyContainer) {
 }
 
 TEST(DequeOfUniqueTest, MemberFunctionSwap) {
-  containerofunique::deque_of_unique<std::string> dou1 = {"hello", "world"};
-  containerofunique::deque_of_unique<std::string> dou2 = {"good", "morning"};
+  deque_of_unique<std::string> dou1 = {"hello", "world"};
+  deque_of_unique<std::string> dou2 = {"good", "morning"};
   std::deque<std::string> dq1 = {"hello", "world"};
   std::deque<std::string> dq2 = {"good", "morning"};
 
@@ -932,9 +922,9 @@ TEST(DequeOfUniqueTest, MemberFunctionSwap) {
 
 #if __cplusplus >= 201703L
 TEST(DequeOfUniqueTest, SwapIsNoexcept) {
-  containerofunique::deque_of_unique<std::string> dou1;
-  containerofunique::deque_of_unique<std::string> dou2;
-  containerofunique::deque_of_unique<std::string> dou3;
+  deque_of_unique<std::string> dou1;
+  deque_of_unique<std::string> dou2;
+  deque_of_unique<std::string> dou3;
 
   // Static assertion to check if the swap function is noexcept
   static_assert(noexcept(dou1.swap(dou2)), "Swap function should be noexcept.");
@@ -955,8 +945,8 @@ TEST(DequeOfUniqueTest, SwapIsNoexcept) {
 #endif
 
 TEST(DequeOfUniqueTest, StdSwap) {
-  containerofunique::deque_of_unique<std::string> dou1 = {"hello", "world"};
-  containerofunique::deque_of_unique<std::string> dou2 = {"good", "morning"};
+  deque_of_unique<std::string> dou1 = {"hello", "world"};
+  deque_of_unique<std::string> dou2 = {"good", "morning"};
   std::deque<std::string> dq1 = {"hello", "world"};
   std::deque<std::string> dq2 = {"good", "morning"};
 
@@ -969,7 +959,7 @@ TEST(DequeOfUniqueTest, StdSwap) {
 
 TEST(DequeOfUniqueTest, Empty) {
   // Test for empty container
-  containerofunique::deque_of_unique<std::string> dou1;
+  deque_of_unique<std::string> dou1;
   static_assert(noexcept(dou1.empty()), "empty() should be noexcept.");
   EXPECT_NO_THROW({
     bool result = dou1.empty();
@@ -978,15 +968,14 @@ TEST(DequeOfUniqueTest, Empty) {
   EXPECT_TRUE(dou1.empty());
 
   // Test for non-empty containers
-  containerofunique::deque_of_unique<std::string> dou2 = {"good"};
+  deque_of_unique<std::string> dou2 = {"good"};
   EXPECT_NO_THROW({
     bool result = dou2.empty();
     EXPECT_FALSE(result);
   });
   EXPECT_FALSE(dou2.empty());
 
-  containerofunique::deque_of_unique<std::string> dou3 = {"good", "morning",
-                                                          "hello", "world"};
+  deque_of_unique<std::string> dou3 = {"good", "morning", "hello", "world"};
   EXPECT_NO_THROW({
     bool result = dou3.empty();
     EXPECT_FALSE(result);
@@ -996,12 +985,11 @@ TEST(DequeOfUniqueTest, Empty) {
 
 TEST(DequeOfUniqueTest, Size) {
   // Test 1: Deque with a single element
-  containerofunique::deque_of_unique<std::string> dou1 = {"good"};
+  deque_of_unique<std::string> dou1 = {"good"};
   EXPECT_EQ(dou1.size(), 1);
 
   // Test 2: Deque with multiple unique elements
-  containerofunique::deque_of_unique<std::string> dou2 = {"good", "morning",
-                                                          "hello", "world"};
+  deque_of_unique<std::string> dou2 = {"good", "morning", "hello", "world"};
   EXPECT_EQ(dou2.size(), 4);
 
   // Adding a new unique element increases the size
@@ -1017,15 +1005,15 @@ TEST(DequeOfUniqueTest, Size) {
   EXPECT_EQ(dou2.size(), 4);
 
   // Test 3: Empty deque
-  containerofunique::deque_of_unique<std::string> dou3;
+  deque_of_unique<std::string> dou3;
   EXPECT_EQ(dou3.size(), 0);  // Corrected to check dou3
 }
 
 #if __cplusplus < 202003L  // Before C++20
 TEST(DequeOfUniqueTest, ComparisonOperatorsWithString) {
-  containerofunique::deque_of_unique<std::string> dou1;
-  containerofunique::deque_of_unique<std::string> dou2;
-  containerofunique::deque_of_unique<std::string> dou3;
+  deque_of_unique<std::string> dou1;
+  deque_of_unique<std::string> dou2;
+  deque_of_unique<std::string> dou3;
 
   // Test equality operator (operator==)
   EXPECT_TRUE(dou1 == dou2);
@@ -1053,9 +1041,9 @@ TEST(DequeOfUniqueTest, ComparisonOperatorsWithString) {
 }
 #else  // C++20 or later
 TEST(DequeOfUniqueTest, ComparisonOperatorsWithStringCXX20) {
-  containerofunique::deque_of_unique<std::string> dou1;
-  containerofunique::deque_of_unique<std::string> dou2;
-  containerofunique::deque_of_unique<std::string> dou3;
+  deque_of_unique<std::string> dou1;
+  deque_of_unique<std::string> dou2;
+  deque_of_unique<std::string> dou3;
 
   // Test spaceship operator (<=>) for C++20 or later
   EXPECT_TRUE((dou1 <=> dou2) == std::strong_ordering::equal);
@@ -1075,12 +1063,12 @@ TEST(DequeOfUniqueTest, ComparisonOperatorsWithStringCXX20) {
 
 TEST(DequeOfUniqueTest, Find) {
   // Test 1: Find in an empty container
-  containerofunique::deque_of_unique<int> dou_empty;
+  deque_of_unique<int> dou_empty;
   auto it_empty = dou_empty.find(10);
   EXPECT_EQ(it_empty, dou_empty.cend());
 
   // Test 2: Find an element that exists in the container
-  containerofunique::deque_of_unique<int> dou = {10, 20, 30};
+  deque_of_unique<int> dou = {10, 20, 30};
   auto it = dou.find(20);
   EXPECT_NE(it, dou.cend());
   EXPECT_EQ(*it, 20);
@@ -1105,8 +1093,7 @@ TEST(DequeOfUniqueTest, Find) {
   EXPECT_EQ(*it_again, 20);
 
   // Test 7: Find in a container with complex data types (e.g., std::string)
-  containerofunique::deque_of_unique<std::string> dou_str = {"hello", "world",
-                                                             "goodbye"};
+  deque_of_unique<std::string> dou_str = {"hello", "world", "goodbye"};
   auto it_str = dou_str.find("world");
   EXPECT_NE(it_str, dou_str.cend());
   EXPECT_EQ(*it_str, "world");
