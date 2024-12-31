@@ -24,12 +24,12 @@ class deque_of_unique {
   using hasher = Hash;
   using key_equal = KeyEqual;
   using const_reference = const value_type &;
-  using DequeType = std::deque<T>;
-  using UnorderedSetType = std::unordered_set<T, Hash, KeyEqual>;
-  using size_type = typename DequeType::size_type;
-  using const_iterator = typename DequeType::const_iterator;
-  using reverse_iterator = typename DequeType::reverse_iterator;
-  using const_reverse_iterator = typename DequeType::const_reverse_iterator;
+  using deque_type = std::deque<T>;
+  using unordered_set_type = std::unordered_set<T, Hash, KeyEqual>;
+  using size_type = typename deque_type::size_type;
+  using const_iterator = typename deque_type::const_iterator;
+  using reverse_iterator = typename deque_type::reverse_iterator;
+  using const_reverse_iterator = typename deque_type::const_reverse_iterator;
 
   // Member functions
   // Constructor
@@ -277,12 +277,12 @@ class deque_of_unique {
   ~deque_of_unique() = default;
 
   // Get member variables
-  const DequeType &deque() const { return deque_; }
-  const UnorderedSetType &set() const { return set_; }
+  const deque_type &deque() const { return deque_; }
+  const unordered_set_type &set() const { return set_; }
 
  private:
-  DequeType deque_;
-  UnorderedSetType set_;
+  deque_type deque_;
+  unordered_set_type set_;
 };  // class deque_of_unique
 
 // Non-member function
