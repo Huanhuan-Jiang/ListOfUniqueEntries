@@ -59,6 +59,17 @@ class deque_of_unique {
     return *this;
   }
 
+  template <class input_it>
+  void assign(input_it first, input_it last) {
+    clear();
+    _push_back(first, last);
+  }
+
+  void assign(std::initializer_list<T> ilist) {
+    clear();
+    _push_back(ilist.begin(), ilist.end());
+  }
+
   // Element access
   const_reference at(size_type pos) const { return deque_.at(pos); }
   const_reference front() const { return deque_.front(); }

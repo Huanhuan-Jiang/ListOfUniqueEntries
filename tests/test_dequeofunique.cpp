@@ -10,7 +10,6 @@
 #include <stdexcept>
 #include <unordered_set>
 #include <utility>
-#include <vector>
 
 #include "dequeofunique.h"
 
@@ -137,10 +136,10 @@ TEST(DequeOfUniqueTest, MoveAssignmentIsNoexcept) {
                              std::declval<deque_of_unique<std::string> &&>()),
                 "Move assignment operator should be noexcept.");
 
-  // Test empty containers
+  // Test empty dous
   EXPECT_NO_THROW(dou1 = std::move(dou2));
 
-  // Test non-empty containers
+  // Test non-empty dous
   dou3.push_back("Hello, world!");
   EXPECT_NO_THROW(dou1 = std::move(dou3));
   // NOLINTNEXTLINE(bugprone-use-after-move,-warnings-as-errors)
@@ -158,6 +157,197 @@ TEST(DequeOfUniqueTest, InitializerListAssignmentOperator) {
   EXPECT_EQ(dou.deque(), dq);
   EXPECT_THAT(std::deque<int>(dou.set().begin(), dou.set().end()),
               ::testing::UnorderedElementsAreArray(dq));
+}
+
+TEST(DequeOfUniqueTest, AssignEmptyRange) {
+  deque_of_unique<int> dou;
+  std::deque<int> empty_range;
+
+  dou.assign(empty_range.begin(), empty_range.end());
+  EXPECT_EQ(dou.size(), 0);
+}
+
+TEST(DequeOfUniqueTest, AssignEmptyInitializerList) {
+  deque_of_unique<int> dou;
+
+  dou.assign({});
+
+  EXPECT_EQ(dou.size(), 0);
+}
+
+TEST(DequeOfUniqueTest, AssignSingleElement) {
+  deque_of_unique<int> dou;
+  std::deque<int> single_element = {42};
+
+  dou.assign(single_element.begin(), single_element.end());
+  EXPECT_EQ(dou.size(), 1);
+  EXPECT_TRUE(dou.find(42) != dou.cend());
+}
+
+TEST(DequeOfUniqueTest, AssignSingleElementInitializerList) {
+  deque_of_unique<int> dou;
+
+  dou.assign({42});
+
+  EXPECT_EQ(dou.size(), 1);
+  EXPECT_TRUE(dou.find(42) != dou.cend());
+}
+
+TEST(DequeOfUniqueTest, AssignMultipleUniqueElements) {
+  deque_of_unique<int> dou;
+  std::deque<int> unique_elements = {1, 2, 3, 4, 5};
+
+  dou.assign(unique_elements.begin(), unique_elements.end());
+
+  // Check deque_ contains the correct elements in order
+  EXPECT_EQ(dou.deque().size(), 5);
+  for (size_t i = 0; i < unique_elements.size(); ++i) {
+    EXPECT_EQ(dou.deque()[i], unique_elements[i]);
+  }
+
+  // Check set_ contains the correct elements (no duplicates)
+  EXPECT_EQ(dou.set().size(), 5);
+  for (int elem : unique_elements) {
+    EXPECT_TRUE(dou.set().find(elem) != dou.set().end());
+  }
+}
+
+TEST(DequeOfUniqueTest, AssignMultipleUniqueElementsInitializerList) {
+  deque_of_unique<int> dou;
+  std::deque<int> unique_elements = {1, 2, 3, 4, 5};
+
+  dou.assign({1, 2, 3, 4, 5});
+
+  // Check deque_ contains the correct elements in order
+  EXPECT_EQ(dou.deque().size(), 5);
+  for (size_t i = 0; i < unique_elements.size(); ++i) {
+    EXPECT_EQ(dou.deque()[i], unique_elements[i]);
+  }
+
+  // Check set_ contains the correct elements (no duplicates)
+  EXPECT_EQ(dou.set().size(), 5);
+  for (int elem : unique_elements) {
+    EXPECT_TRUE(dou.set().find(elem) != dou.set().end());
+  }
+}
+
+TEST(DequeOfUniqueTest, AssignWithDuplicates) {
+  deque_of_unique<int> dou;
+  std::deque<int> elements_with_duplicates = {1, 2, 2, 3, 3, 4};
+
+  dou.assign(elements_with_duplicates.begin(), elements_with_duplicates.end());
+
+  // Check deque_ contains only unique elements in order
+  std::deque<int> expected = {1, 2, 3, 4};
+  EXPECT_EQ(dou.deque().size(), expected.size());
+  for (size_t i = 0; i < expected.size(); ++i) {
+    EXPECT_EQ(dou.deque()[i], expected[i]);
+  }
+
+  // Check set_ contains the same unique elements
+  EXPECT_EQ(dou.set().size(), expected.size());
+  for (int elem : expected) {
+    EXPECT_TRUE(dou.set().find(elem) != dou.set().end());
+  }
+}
+
+TEST(DequeOfUniqueTest, AssignWithDuplicatesInitializerList) {
+  deque_of_unique<int> dou;
+
+  dou.assign({1, 2, 2, 3, 3, 4});
+
+  // Check deque_ contains only unique elements in order
+  std::deque<int> expected = {1, 2, 3, 4};
+  EXPECT_EQ(dou.deque().size(), expected.size());
+  for (size_t i = 0; i < expected.size(); ++i) {
+    EXPECT_EQ(dou.deque()[i], expected[i]);
+  }
+
+  // Check set_ contains the same unique elements
+  EXPECT_EQ(dou.set().size(), expected.size());
+  for (int elem : expected) {
+    EXPECT_TRUE(dou.set().find(elem) != dou.set().end());
+  }
+}
+
+TEST(DequeOfUniqueTest, ReassignWithDifferentElements) {
+  deque_of_unique<int> dou;
+  std::deque<int> initial_elements = {1, 2, 3};
+  dou.assign(initial_elements.begin(), initial_elements.end());
+
+  std::deque<int> new_elements = {4, 5, 6};
+  dou.assign(new_elements.begin(), new_elements.end());
+
+  // Check deque_ has new elements
+  EXPECT_EQ(dou.deque().size(), new_elements.size());
+  for (size_t i = 0; i < new_elements.size(); ++i) {
+    EXPECT_EQ(dou.deque()[i], new_elements[i]);
+  }
+
+  // Check set_ has the same new elements
+  EXPECT_EQ(dou.set().size(), new_elements.size());
+  for (int elem : new_elements) {
+    EXPECT_TRUE(dou.set().find(elem) != dou.set().end());
+  }
+}
+
+TEST(DequeOfUniqueTest, ReassignWithDifferentElementsInitializerList) {
+  deque_of_unique<int> dou;
+  std::deque<int> initial_elements = {1, 2, 3};
+  std::deque<int> new_elements = {4, 5, 6};
+
+  dou.assign({1, 2, 3});
+
+  dou.assign({4, 5, 6});
+
+  // Check deque_ has new elements
+  EXPECT_EQ(dou.deque().size(), new_elements.size());
+  for (size_t i = 0; i < new_elements.size(); ++i) {
+    EXPECT_EQ(dou.deque()[i], new_elements[i]);
+  }
+
+  // Check set_ has the same new elements
+  EXPECT_EQ(dou.set().size(), new_elements.size());
+  for (int elem : new_elements) {
+    EXPECT_TRUE(dou.set().find(elem) != dou.set().end());
+  }
+}
+
+TEST(DequeOfUniqueTest, MixedInsertions) {
+  deque_of_unique<int> dou;
+  std::deque<int> initial_elements = {1, 2, 3};
+  dou.assign(initial_elements.begin(), initial_elements.end());
+
+  std::deque<int> new_elements = {3, 4, 5};
+  dou.assign(new_elements.begin(), new_elements.end());
+
+  // Check deque_ contains only the new unique elements
+  std::deque<int> expected = {3, 4, 5};
+  ASSERT_EQ(dou.deque().size(), expected.size());
+  for (size_t i = 0; i < expected.size(); ++i) {
+    ASSERT_EQ(dou.deque()[i], expected[i]);
+  }
+
+  // Check set_ contains the new unique elements
+  ASSERT_EQ(dou.set().size(), expected.size());
+  for (int elem : expected) {
+    ASSERT_TRUE(dou.set().find(elem) != dou.set().end());
+  }
+}
+
+TEST(DequeOfUniqueTest, AssignEmptyRangeAfterClearing) {
+  deque_of_unique<int> dou;
+  std::deque<int> initial_elements = {1, 2, 3};
+  dou.assign(initial_elements.begin(), initial_elements.end());
+
+  // Now clear and reassign an empty range
+  std::deque<int> empty_range;
+  dou.assign(empty_range.begin(), empty_range.end());
+
+  // Check that deque_ and set_ are empty after clearing and assigning empty
+  // range
+  ASSERT_EQ(dou.deque().size(), 0);
+  ASSERT_EQ(dou.set().size(), 0);
 }
 
 TEST(DequeOfUniqueTest, ElementAccess) {
@@ -216,7 +406,7 @@ TEST(DequeOfUniqueTest, CrbeginCrend_Iteration) {
 }
 
 TEST(DequeOfUniqueTest, IteratorsAreNoexcept) {
-  // Test with empty container
+  // Test with empty dou
   deque_of_unique<int> dou1;
   static_assert(noexcept(dou1.cbegin()), "cbegin() should be noexcept.");
   EXPECT_NO_THROW(dou1.cbegin());
@@ -227,7 +417,7 @@ TEST(DequeOfUniqueTest, IteratorsAreNoexcept) {
   static_assert(noexcept(dou1.crend()), "crend() should be noexcept.");
   EXPECT_NO_THROW(dou1.crend());
 
-  // Test with non-empty container
+  // Test with non-empty dou
   deque_of_unique<int> dou2 = {1, 2, 3, 4};
   static_assert(noexcept(dou2.cbegin()), "cbegin() should be noexcept.");
   EXPECT_NO_THROW(dou2.cbegin());
@@ -262,7 +452,7 @@ TEST(DequeOfUniqueTest, IteratorsAreNoexcept) {
   EXPECT_NO_THROW(dou5.crend());
 }
 
-TEST(DequeOfUniqueTest, EmptyContainer_Iterators) {
+TEST(DequeOfUniqueTest, Emptydou_Iterators) {
   deque_of_unique<int> empty_dou;
 
   EXPECT_EQ(empty_dou.cbegin(), empty_dou.cend());
@@ -304,7 +494,7 @@ TEST(DequeOfUniqueTest, Erase_SingleElement) {
   EXPECT_THAT(dou.set(), ::testing::UnorderedElementsAreArray(expected_set));
 }
 
-TEST(DequeOfUniqueTest, Erase_FromEmptyContainer) {
+TEST(DequeOfUniqueTest, Erase_FromEmptydou) {
   deque_of_unique<int> dou;
   EXPECT_NO_THROW(dou.erase(dou.cbegin()));
   EXPECT_EQ(dou.deque().size(), 0);
@@ -514,7 +704,7 @@ TEST(DequeOfUniqueTest, EmplaceExceptionSafety) {
   // Exception-throwing insertion
   EXPECT_THROW(dou.emplace(dou.cbegin(), "throw"), std::runtime_error);
 
-  // Ensure the container remains consistent
+  // Ensure the dou remains consistent
   EXPECT_EQ(dou.deque().size(), 1);
   EXPECT_EQ(dou.deque().front().value, "hello");
 }
@@ -896,11 +1086,11 @@ TEST(DequeOfUniqueTest, PushBack_EmptyRvalue) {
   EXPECT_THAT(dou.set(), ::testing::UnorderedElementsAreArray(expected));
 }
 
-TEST(DequeOfUniqueTest, PushBack_EmptyContainer) {
+TEST(DequeOfUniqueTest, PushBack_Emptydou) {
   deque_of_unique<std::string> dou;
   std::deque<std::string> expected = {"hello"};
 
-  // Test pushing to an initially empty container
+  // Test pushing to an initially empty dou
   bool result = dou.push_back("hello");
   EXPECT_TRUE(result);  // Should return true
   EXPECT_EQ(dou.deque(), expected);
@@ -929,10 +1119,10 @@ TEST(DequeOfUniqueTest, SwapIsNoexcept) {
   // Static assertion to check if the swap function is noexcept
   static_assert(noexcept(dou1.swap(dou2)), "Swap function should be noexcept.");
 
-  // Test empty containers
+  // Test empty dous
   EXPECT_NO_THROW(dou1.swap(dou2));
 
-  // Test non-empty containers
+  // Test non-empty dous
   dou1.push_back("hello");
   dou3.push_back("world");
   EXPECT_NO_THROW(dou1.swap(dou3));
@@ -958,7 +1148,7 @@ TEST(DequeOfUniqueTest, StdSwap) {
 }
 
 TEST(DequeOfUniqueTest, Empty) {
-  // Test for empty container
+  // Test for empty dou
   deque_of_unique<std::string> dou1;
   static_assert(noexcept(dou1.empty()), "empty() should be noexcept.");
   EXPECT_NO_THROW({
@@ -967,7 +1157,7 @@ TEST(DequeOfUniqueTest, Empty) {
   });
   EXPECT_TRUE(dou1.empty());
 
-  // Test for non-empty containers
+  // Test for non-empty dous
   deque_of_unique<std::string> dou2 = {"good"};
   EXPECT_NO_THROW({
     bool result = dou2.empty();
@@ -1062,12 +1252,12 @@ TEST(DequeOfUniqueTest, ComparisonOperatorsWithStringCXX20) {
 #endif
 
 TEST(DequeOfUniqueTest, Find) {
-  // Test 1: Find in an empty container
+  // Test 1: Find in an empty dou
   deque_of_unique<int> dou_empty;
   auto it_empty = dou_empty.find(10);
   EXPECT_EQ(it_empty, dou_empty.cend());
 
-  // Test 2: Find an element that exists in the container
+  // Test 2: Find an element that exists in the dou
   deque_of_unique<int> dou = {10, 20, 30};
   auto it = dou.find(20);
   EXPECT_NE(it, dou.cend());
@@ -1092,7 +1282,7 @@ TEST(DequeOfUniqueTest, Find) {
   EXPECT_EQ(it_again, it);
   EXPECT_EQ(*it_again, 20);
 
-  // Test 7: Find in a container with complex data types (e.g., std::string)
+  // Test 7: Find in a dou with complex data types (e.g., std::string)
   deque_of_unique<std::string> dou_str = {"hello", "world", "goodbye"};
   auto it_str = dou_str.find("world");
   EXPECT_NE(it_str, dou_str.cend());
@@ -1105,17 +1295,17 @@ TEST(DequeOfUniqueTest, Find) {
 TEST(DequeOfUniqueTest, NonmemberEraseWithStrings) {
   deque_of_unique<std::string> dou = {"apple", "banana", "cherry"};
 
-  // Test 1: Erase a string element that exists in the container
+  // Test 1: Erase a string element that exists in the dou
   // Erase an existing string element
   EXPECT_EQ(erase(dou, "banana"), 1);
   EXPECT_EQ(dou.size(), 2);
   EXPECT_EQ(dou.find("banana"), dou.cend());
 
-  // Test 2: Erase a string element that does not exist in the container
+  // Test 2: Erase a string element that does not exist in the dou
   EXPECT_EQ(erase(dou, "grape"), 0);
   EXPECT_EQ(dou.size(), 2);
 
-  // Test 3: Erase the last string element in the container
+  // Test 3: Erase the last string element in the dou
   EXPECT_EQ(erase(dou, "apple"), 1);
   EXPECT_EQ(dou.size(), 1);
 
@@ -1123,7 +1313,7 @@ TEST(DequeOfUniqueTest, NonmemberEraseWithStrings) {
   EXPECT_EQ(erase(dou, "cherry"), 1);
   EXPECT_EQ(dou.size(), 0);
 
-  // Test 5: Erase from an empty container
+  // Test 5: Erase from an empty dou
   EXPECT_EQ(erase(dou, "grape"), 0);
   EXPECT_EQ(dou.size(), 0);
 }
@@ -1155,11 +1345,11 @@ TEST(DequeOfUniqueTest, NonmemberEraseMultipleStringElements) {
 TEST(DequeOfUniqueTest, NonmemberEraseEdgeCasesWithStrings) {
   deque_of_unique<std::string> dou;
 
-  // Test 1: Erase from an empty container
+  // Test 1: Erase from an empty dou
   EXPECT_EQ(erase(dou, "orange"), 0);
   EXPECT_EQ(dou.size(), 0);
 
-  // Test 2: Erase from a container with a single string element
+  // Test 2: Erase from a dou with a single string element
   dou.push_back("apple");
   EXPECT_EQ(erase(dou, "apple"), 1);
   EXPECT_EQ(dou.size(), 0);
@@ -1168,11 +1358,11 @@ TEST(DequeOfUniqueTest, NonmemberEraseEdgeCasesWithStrings) {
 TEST(DequeOfUniqueTest, NonmemberEraseNonExistentStringElement) {
   deque_of_unique<std::string> dou;
 
-  // Test 1: Erase non-existent string element from an empty container
+  // Test 1: Erase non-existent string element from an empty dou
   EXPECT_EQ(erase(dou, "orange"), 0);
   EXPECT_EQ(dou.size(), 0);
 
-  // Test 2: Erase non-existent string element from a container with some
+  // Test 2: Erase non-existent string element from a dou with some
   // elements
   dou.push_back("apple");
   dou.push_back("banana");
@@ -1208,7 +1398,7 @@ TEST(DequeOfUniqueTest, EraseIfAllElementsRemoved) {
   EXPECT_EQ(dou.size(), 0);
 }
 
-TEST(DequeOfUniqueTest, EraseIfEmptyContainer) {
+TEST(DequeOfUniqueTest, EraseIfEmptydou) {
   deque_of_unique<int> dou;
   auto pred = [](int x) { return x % 2 == 0; };
   size_t removed_count = erase_if(dou, pred);
