@@ -1199,7 +1199,7 @@ TEST(DequeOfUniqueTest, Size) {
   EXPECT_EQ(dou3.size(), 0);  // Corrected to check dou3
 }
 
-#if __cplusplus < 202003L  // Before C++20
+#if __cplusplus < 202002L  // Before C++20
 TEST(DequeOfUniqueTest, ComparisonOperatorsWithString) {
   deque_of_unique<std::string> dou1;
   deque_of_unique<std::string> dou2;
@@ -1291,6 +1291,34 @@ TEST(DequeOfUniqueTest, Find) {
   auto it_str_not_found = dou_str.find("unknown");
   EXPECT_EQ(it_str_not_found, dou_str.cend());
 }
+
+#if __cplusplus > 202002L  // After C++20
+TEST(DequeOfUniqueTest, ContainsKeyType) {
+  deque_of_unique<int> dou = {1, 2, 3};
+
+  EXPECT_TRUE(dou.contains(1));
+  EXPECT_TRUE(dou.contains(2));
+  EXPECT_FALSE(dou.contains(4));
+}
+
+TEST(DequeOfUniqueTest, ContainsCompatibleType) {
+  deque_of_unique<int> dou = {1, 2, 3};
+  EXPECT_TRUE(dou.contains(1));
+  EXPECT_TRUE(dou.contains(1.0));  // Assuming compatibility
+}
+
+TEST(DequeOfUniqueTest, ContainsInEmptyDeque) {
+  deque_of_unique<int> dou;
+  EXPECT_FALSE(dou.contains(1));
+}
+
+TEST(DequeOfUniqueTest, ContainsWithVariousIntTypes) {
+  deque_of_unique<int32_t> dou = {1, 2, 3};
+
+  EXPECT_TRUE(dou.contains(int16_t(1)));
+  EXPECT_FALSE(dou.contains(int16_t(4)));
+}
+#endif
 
 TEST(DequeOfUniqueTest, NonmemberEraseWithStrings) {
   deque_of_unique<std::string> dou = {"apple", "banana", "cherry"};
