@@ -284,6 +284,15 @@ class deque_of_unique {
   }
 #endif
 
+#if __cplusplus > 202002L
+  bool contains(const key_type &key) const { return set_.contains(key); }
+
+  template <class K>
+  bool contains(const K &x) const {
+    return set_.contains(x);
+  }
+#endif
+
   // Destructor
   ~deque_of_unique() = default;
 
