@@ -155,6 +155,13 @@ public:
     return std::make_pair(pos, false);
   }
 
+#if __cplusplus < 201703L // Before C++20
+  template <class... Args> void emplace_front(Args &&...args) {
+    if (set_.emplace(args...).second) {
+      deque_.emplace_front(std::forward<Args>(args)...);
+    }
+  }
+#else
   template <class... Args>
   std::optional<std::reference_wrapper<T>> emplace_front(Args &&...args) {
     if (set_.emplace(args...).second) {
@@ -162,6 +169,7 @@ public:
     }
     return std::nullopt;
   }
+#endif
 
   template <class... Args>
   std::optional<std::reference_wrapper<T>> emplace_back(Args &&...args) {
