@@ -18,10 +18,10 @@ jobs:
         uses: actions/checkout@v4.1.1
         with:
           submodules: recursive
-      
+
       - name: Install Clang-Tidy
         run: sudo apt-get update && sudo apt-get install -y clang-tidy bear
-      
+
       - name: Print compiler version
         run: |
           g++ --version
@@ -33,7 +33,14 @@ jobs:
           cd build
           cmake ..
           make
-          ctest --output-on-failure
+          echo "Running tests for C++14"
+          ./dequeofuniquetest_cxx14
+          echo "Running tests for C++17"
+          ./dequeofuniquetest_cxx17
+          echo "Running tests for C++20"
+          ./dequeofuniquetest_cxx20
+          echo "Running tests for C++23"
+          ./dequeofuniquetest_cxx23
           find ../ \( -name '*.cpp' -o -name '*.h' \) \
           -not \( -path '*/build/*' -o -path '*/thirdparty/*' \) \
           -exec clang-tidy -p=. --config-file=../.clang-tidy -extra-arg=-Wunused-variable {} + \
