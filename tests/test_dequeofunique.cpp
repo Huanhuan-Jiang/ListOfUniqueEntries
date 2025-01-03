@@ -36,7 +36,7 @@ TEST(DequeOfUniqueTest, ConstructorInitializesFromIterators) {
 TEST(DequeOfUniqueTest, ConstructorWithInitializerListChecksDequeAndSet) {
   deque_of_unique<int> dou1 = {1};
   deque_of_unique<int> dou2 = {1, 2};
-  deque_of_unique<int> dou3 = {1, 2, 3, 3};  // duplicate elements
+  deque_of_unique<int> dou3 = {1, 2, 3, 3}; // duplicate elements
 
   std::deque<int> dq1 = {1};
   std::deque<int> dq2 = {1, 2};
@@ -75,7 +75,7 @@ TEST(DequeOfUniqueTest, CopyConstructor_Independence) {
   deque_of_unique<int> dou1 = {1, 2, 3};
   deque_of_unique<int> dou2(dou1);
 
-  dou1.push_back(4);  // Modify the original
+  dou1.push_back(4); // Modify the original
   EXPECT_EQ(dou1.deque(), std::deque<int>({1, 2, 3, 4}));
   EXPECT_EQ(dou2.deque(), std::deque<int>({1, 2, 3}));
 }
@@ -110,8 +110,8 @@ TEST(DequeOfUniqueTest, CopyAssignmentOperator) {
   EXPECT_THAT(std::deque<int>(dou2.set().begin(), dou2.set().end()),
               ::testing::UnorderedElementsAreArray(dq));
   dou1.push_back(
-      5);  // This is used to suppress warning of
-           // [performance-unnecessary-copy-initialization,-warnings-as-errors]
+      5); // This is used to suppress warning of
+          // [performance-unnecessary-copy-initialization,-warnings-as-errors]
 }
 
 TEST(DequeOfUniqueTest, MoveAssignmentOperator) {
@@ -685,16 +685,6 @@ struct ThrowingType {
   }
 };
 
-namespace std {
-template <>
-struct hash<ThrowingType> {
-  size_t operator()(const ThrowingType &obj) const {
-    (void)obj;
-    return 0;
-  }
-};
-}  // namespace std
-
 TEST(DequeOfUniqueTest, EmplaceExceptionSafety) {
   deque_of_unique<ThrowingType> dou;
 
@@ -722,7 +712,7 @@ TEST(DequeOfUniqueTest, EmplaceNonString) {
 
   // Attempt to emplace a duplicate
   result = dou.emplace(dou.cbegin(), 4);
-  EXPECT_EQ(dou.deque(), dq);  // No change
+  EXPECT_EQ(dou.deque(), dq); // No change
   EXPECT_FALSE(result.second);
 }
 
@@ -957,11 +947,11 @@ TEST(DequeOfUniqueTest, Front_AfterModification) {
 
   // Add a new element at the front
   dou.emplace_front("good");
-  EXPECT_EQ(dou.front(), "good");  // The front should now be "good"
+  EXPECT_EQ(dou.front(), "good"); // The front should now be "good"
 
   // Remove the front element
   dou.pop_front();
-  EXPECT_EQ(dou.front(), "hello");  // The front should now be "hello"
+  EXPECT_EQ(dou.front(), "hello"); // The front should now be "hello"
 }
 
 TEST(DequeOfUniqueTest, PopBack_EmptyDeque) {
@@ -1045,7 +1035,7 @@ TEST(DequeOfUniqueTest, PushBack_NewElement) {
 
   // Test pushing a new element to the back
   bool result = dou.push_back("good");
-  EXPECT_TRUE(result);  // Should return true
+  EXPECT_TRUE(result); // Should return true
   EXPECT_EQ(dou.deque(), expected);
   EXPECT_THAT(dou.set(), ::testing::UnorderedElementsAreArray(expected));
 }
@@ -1056,7 +1046,7 @@ TEST(DequeOfUniqueTest, PushBack_DuplicateElement) {
 
   // Test pushing a duplicate element
   bool result = dou.push_back("hello");
-  EXPECT_FALSE(result);  // Should return false
+  EXPECT_FALSE(result); // Should return false
   EXPECT_EQ(dou.size(), 2);
   EXPECT_EQ(dou.deque(), expected);
   EXPECT_THAT(dou.set(), ::testing::UnorderedElementsAreArray(expected));
@@ -1069,7 +1059,7 @@ TEST(DequeOfUniqueTest, PushBack_Rvalue) {
   // Test pushing an rvalue to the back
   std::string str = "good";
   bool result = dou.push_back(std::move(str));
-  EXPECT_TRUE(result);  // Should return true
+  EXPECT_TRUE(result); // Should return true
   EXPECT_EQ(dou.deque(), expected);
   EXPECT_THAT(dou.set(), ::testing::UnorderedElementsAreArray(expected));
 }
@@ -1081,7 +1071,7 @@ TEST(DequeOfUniqueTest, PushBack_EmptyRvalue) {
   // Test pushing an empty string as an rvalue
   std::string str = "";
   bool result = dou.push_back(std::move(str));
-  EXPECT_TRUE(result);  // Should return true
+  EXPECT_TRUE(result); // Should return true
   EXPECT_EQ(dou.deque(), expected);
   EXPECT_THAT(dou.set(), ::testing::UnorderedElementsAreArray(expected));
 }
@@ -1092,7 +1082,7 @@ TEST(DequeOfUniqueTest, PushBack_Emptydou) {
 
   // Test pushing to an initially empty dou
   bool result = dou.push_back("hello");
-  EXPECT_TRUE(result);  // Should return true
+  EXPECT_TRUE(result); // Should return true
   EXPECT_EQ(dou.deque(), expected);
   EXPECT_THAT(dou.set(), ::testing::UnorderedElementsAreArray(expected));
 }
@@ -1130,7 +1120,7 @@ TEST(DequeOfUniqueTest, SwapIsNoexcept) {
   EXPECT_TRUE(dou3.front() == "hello");
 
   // Self-swap test (optional but good for robustness)
-  EXPECT_NO_THROW(dou1.swap(dou1));  // Self-swap should not throw an exception
+  EXPECT_NO_THROW(dou1.swap(dou1)); // Self-swap should not throw an exception
 }
 #endif
 
@@ -1191,15 +1181,15 @@ TEST(DequeOfUniqueTest, Size) {
   EXPECT_EQ(dou2.size(), 4);
 
   // Attempting to add a duplicate element does not change the size
-  dou2.push_back("morning");  // "morning" is already in the deque
+  dou2.push_back("morning"); // "morning" is already in the deque
   EXPECT_EQ(dou2.size(), 4);
 
   // Test 3: Empty deque
   deque_of_unique<std::string> dou3;
-  EXPECT_EQ(dou3.size(), 0);  // Corrected to check dou3
+  EXPECT_EQ(dou3.size(), 0); // Corrected to check dou3
 }
 
-#if __cplusplus < 202002L  // Before C++20
+#if __cplusplus < 202002L // Before C++20
 TEST(DequeOfUniqueTest, ComparisonOperatorsWithString) {
   deque_of_unique<std::string> dou1;
   deque_of_unique<std::string> dou2;
@@ -1207,15 +1197,15 @@ TEST(DequeOfUniqueTest, ComparisonOperatorsWithString) {
 
   // Test equality operator (operator==)
   EXPECT_TRUE(dou1 == dou2);
-  dou1.data.push_back("Hello");
+  dou1.push_back("Hello");
   EXPECT_FALSE(dou1 == dou2);
 
   // Test inequality operator (operator!=)
-  dou2.data.push_back("World");
+  dou2.push_back("World");
   EXPECT_TRUE(dou1 != dou2);
 
   // Test less-than operator (operator<)
-  dou3.data.push_back("Apple");
+  dou3.push_back("Apple");
   EXPECT_TRUE(dou3 < dou1);
 
   // Test less-than-or-equal operator (operator<=)
@@ -1229,7 +1219,7 @@ TEST(DequeOfUniqueTest, ComparisonOperatorsWithString) {
   EXPECT_TRUE(dou1 >= dou3);
   EXPECT_TRUE(dou2 >= dou1);
 }
-#else  // C++20 or later
+#else // C++20 or later
 TEST(DequeOfUniqueTest, ComparisonOperatorsWithStringCXX20) {
   deque_of_unique<std::string> dou1;
   deque_of_unique<std::string> dou2;
@@ -1292,7 +1282,7 @@ TEST(DequeOfUniqueTest, Find) {
   EXPECT_EQ(it_str_not_found, dou_str.cend());
 }
 
-#if __cplusplus > 202002L  // After C++20
+#if __cplusplus > 202002L // After C++20
 TEST(DequeOfUniqueTest, ContainsKeyType) {
   deque_of_unique<int> dou = {1, 2, 3};
 
@@ -1304,7 +1294,7 @@ TEST(DequeOfUniqueTest, ContainsKeyType) {
 TEST(DequeOfUniqueTest, ContainsCompatibleType) {
   deque_of_unique<int> dou = {1, 2, 3};
   EXPECT_TRUE(dou.contains(1));
-  EXPECT_TRUE(dou.contains(1.0));  // Assuming compatibility
+  EXPECT_TRUE(dou.contains(1.0)); // Assuming compatibility
 }
 
 TEST(DequeOfUniqueTest, ContainsInEmptyDeque) {
@@ -1357,17 +1347,17 @@ TEST(DequeOfUniqueTest, NonmemberEraseMultipleStringElements) {
   // Remove first element
   EXPECT_EQ(erase(dou, "apple"), 1);
   EXPECT_EQ(dou.size(), 2);
-  EXPECT_EQ(dou.find("apple"), dou.cend());  // "apple" should be removed
+  EXPECT_EQ(dou.find("apple"), dou.cend()); // "apple" should be removed
 
   // Remove second element
   EXPECT_EQ(erase(dou, "banana"), 1);
   EXPECT_EQ(dou.size(), 1);
-  EXPECT_EQ(dou.find("banana"), dou.cend());  // "banana" should be removed
+  EXPECT_EQ(dou.find("banana"), dou.cend()); // "banana" should be removed
 
   // Remove last element
   EXPECT_EQ(erase(dou, "cherry"), 1);
   EXPECT_EQ(dou.size(), 0);
-  EXPECT_EQ(dou.find("cherry"), dou.cend());  // "cherry" should be removed
+  EXPECT_EQ(dou.find("cherry"), dou.cend()); // "cherry" should be removed
 }
 
 TEST(DequeOfUniqueTest, NonmemberEraseEdgeCasesWithStrings) {
