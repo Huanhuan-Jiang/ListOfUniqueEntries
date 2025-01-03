@@ -467,9 +467,13 @@ TEST(DequeOfUniqueTest, ConstCorrectness_Iterators) {
   EXPECT_TRUE((std::same_as<decltype(*dou.crbegin()), const int &>));
   EXPECT_TRUE((std::same_as<decltype(*dou.crend()), const int &>));
 #else
+  // NOLINTNEXTLINE(modernize-type-traits)
   EXPECT_TRUE((std::is_same<decltype(*dou.cbegin()), const int &>::value));
+  // NOLINTNEXTLINE(modernize-type-traits)
   EXPECT_TRUE((std::is_same<decltype(*dou.cend()), const int &>::value));
+  // NOLINTNEXTLINE(modernize-type-traits)
   EXPECT_TRUE((std::is_same<decltype(*dou.crbegin()), const int &>::value));
+  // NOLINTNEXTLINE(modernize-type-traits)
   EXPECT_TRUE((std::is_same<decltype(*dou.crend()), const int &>::value));
 #endif
 }
