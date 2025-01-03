@@ -1,17 +1,29 @@
 #pragma once
 
-#include <functional>  // For std::hash
+#include <functional> // For std::hash
 #include <initializer_list>
-#include <optional>  // For std::nullopt
+#include <optional> // For std::nullopt
 #include <unordered_set>
-#include <utility>  // For std::swap
+#include <utility> // For std::swap
 #include <vector>
+
+#if __cplusplus >= 201703L
+#define NOEXCEPT_CXX17 noexcept
+#else
+#define NOEXCEPT_CXX17
+#endif
+
+#if __cplusplus >= 201703L
+#define CONSTEXPR_CXX20 constexpr
+#else
+#define CONSTEXPR_CXX20
+#endif
 
 namespace containerofunique {
 
 template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>>
 class vector_of_unique {
- public:
+public:
   // *Member types
   using value_type = T;
   using key_type = T;
@@ -29,8 +41,7 @@ class vector_of_unique {
   // Constructor
   vector_of_unique() noexcept = default;
 
-  template <class input_it>
-  vector_of_unique(input_it first, input_it last) {
+  template <class input_it> vector_of_unique(input_it first, input_it last) {
     _push_back(first, last);
   }
 
@@ -140,13 +151,22 @@ class vector_of_unique {
     return std::make_pair(pos, false);
   }
 
+#if __cplusplus < 201703L
+  template <class... Args> void emplace_back(Args &&...args) {
+    if (set_.emplace(args...).second) {
+      vector_.emplace_back(std::forward<Args>(args)...);
+    }
+  }
+#else
   template <class... Args>
-  std::optional<std::reference_wrapper<T>> emplace_back(Args &&...args) {
+  CONSTEXPR_CXX20 std::optional<std::reference_wrapper<T>>
+  emplace_back(Args &&...args) {
     if (set_.emplace(args...).second) {
       return vector_.emplace_back(std::forward<Args>(args)...);
     }
     return std::nullopt;
   }
+#endif
 
   void pop_back() {
     if (!vector_.empty()) {
@@ -156,7 +176,7 @@ class vector_of_unique {
     }
   }
 
-  bool push_back(const T &value) {
+  CONSTEXPR_CXX20 bool push_back(const T &value) {
     if (set_.insert(value).second) {
       vector_.push_back(value);
       return true;
@@ -164,7 +184,7 @@ class vector_of_unique {
     return false;
   }
 
-  bool push_back(T &&value) {
+  CONSTEXPR_CXX20 bool push_back(T &&value) {
     auto temp = std::move(value);
     if (set_.insert(temp).second) {
       vector_.push_back(std::move(temp));
@@ -173,8 +193,7 @@ class vector_of_unique {
     return false;
   }
 
-  template <class input_it>
-  void _push_back(input_it first, input_it last) {
+  template <class input_it> void _push_back(input_it first, input_it last) {
     while (first != last) {
       push_back(*first++);
     }
@@ -214,8 +233,8 @@ class vector_of_unique {
   const VectorType &vector() const { return vector_; }
   const UnorderedSetType &set() const { return set_; }
 
- private:
+private:
   VectorType vector_;
   UnorderedSetType set_;
-};  // class vector_of_unique
-};  // namespace containerofunique
+}; // class vector_of_unique
+}; // namespace containerofunique
