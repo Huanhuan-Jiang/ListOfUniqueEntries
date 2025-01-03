@@ -1,11 +1,11 @@
 #pragma once
 
 #include <deque>
-#include <functional> // For std::hash
+#include <functional>  // For std::hash
 #include <initializer_list>
-#include <optional> // For std::nullopt
+#include <optional>  // For std::nullopt
 #include <unordered_set>
-#include <utility> // For std::swap
+#include <utility>  // For std::swap
 
 #if __cplusplus >= 201703L
 #define NOEXCEPT_CXX17 noexcept
@@ -17,7 +17,7 @@ namespace containerofunique {
 
 template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>>
 class deque_of_unique {
-public:
+ public:
   // *Member types
   using value_type = T;
   using key_type = T;
@@ -35,7 +35,8 @@ public:
   // Constructor
   deque_of_unique() = default;
 
-  template <class input_it> deque_of_unique(input_it first, input_it last) {
+  template <class input_it>
+  deque_of_unique(input_it first, input_it last) {
     _push_back(first, last);
   }
 
@@ -58,7 +59,8 @@ public:
     return *this;
   }
 
-  template <class input_it> void assign(input_it first, input_it last) {
+  template <class input_it>
+  void assign(input_it first, input_it last) {
     clear();
     _push_back(first, last);
   }
@@ -155,8 +157,9 @@ public:
     return std::make_pair(pos, false);
   }
 
-#if __cplusplus < 201703L // Before C++20
-  template <class... Args> void emplace_front(Args &&...args) {
+#if __cplusplus < 201703L  // Before C++20
+  template <class... Args>
+  void emplace_front(Args &&...args) {
     if (set_.emplace(args...).second) {
       deque_.emplace_front(std::forward<Args>(args)...);
     }
@@ -171,6 +174,14 @@ public:
   }
 #endif
 
+#if __cplusplus < 201703L  // Before C++20
+  template <class... Args>
+  void emplace_back(Args &&...args) {
+    if (set_.emplace(args...).second) {
+      deque_.emplace_back(std::forward<Args>(args)...);
+    }
+  }
+#else
   template <class... Args>
   std::optional<std::reference_wrapper<T>> emplace_back(Args &&...args) {
     if (set_.emplace(args...).second) {
@@ -178,6 +189,7 @@ public:
     }
     return std::nullopt;
   }
+#endif
 
   void pop_front() {
     if (!deque_.empty()) {
@@ -229,7 +241,8 @@ public:
     return false;
   }
 
-  template <class input_it> void _push_back(input_it first, input_it last) {
+  template <class input_it>
+  void _push_back(input_it first, input_it last) {
     while (first != last) {
       push_back(*first++);
     }
@@ -259,7 +272,7 @@ public:
   size_type size() const noexcept { return deque_.size(); }
 
 // Look up
-#if __cplusplus < 202003L
+#if __cplusplus < 202002L
   const_iterator find(const T &x) const {
     auto it = cbegin();
     while (it != cend()) {
@@ -271,7 +284,8 @@ public:
     return cend();
   }
 #else
-  template <class K> const_iterator find(const K &x) const {
+  template <class K>
+  const_iterator find(const K &x) const {
     auto it = cbegin();
     while (it != cend()) {
       if (*it == x) {
@@ -286,7 +300,8 @@ public:
 #if __cplusplus > 202002L
   bool contains(const key_type &key) const { return set_.contains(key); }
 
-  template <class K> bool contains(const K &x) const {
+  template <class K>
+  bool contains(const K &x) const {
     return set_.contains(x);
   }
 #endif
@@ -298,17 +313,17 @@ public:
   const deque_type &deque() const { return deque_; }
   const unordered_set_type &set() const { return set_; }
 
-private:
+ private:
   deque_type deque_;
   unordered_set_type set_;
-}; // class deque_of_unique
+};  // class deque_of_unique
 
 // Non-member function
 #if __cplusplus >= 202002L && __cplusplus < 202600L
 template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>,
           class U>
-typename deque_of_unique<T, Hash, KeyEqual>::size_type
-erase(deque_of_unique<T, Hash, KeyEqual> &c, const U &value) {
+typename deque_of_unique<T, Hash, KeyEqual>::size_type erase(
+    deque_of_unique<T, Hash, KeyEqual> &c, const U &value) {
   auto it = c.find(value);
   if (it != c.cend()) {
     c.erase(it);
@@ -319,8 +334,8 @@ erase(deque_of_unique<T, Hash, KeyEqual> &c, const U &value) {
 #else
 template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>,
           class U = T>
-typename deque_of_unique<T, Hash, KeyEqual>::size_type
-erase(deque_of_unique<T, Hash, KeyEqual> &c, const U &value) {
+typename deque_of_unique<T, Hash, KeyEqual>::size_type erase(
+    deque_of_unique<T, Hash, KeyEqual> &c, const U &value) {
   auto it = c.find(value);
   if (it != c.cend()) {
     c.erase(it);
@@ -332,8 +347,8 @@ erase(deque_of_unique<T, Hash, KeyEqual> &c, const U &value) {
 
 template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>,
           class Pred>
-typename deque_of_unique<T, Hash, KeyEqual>::size_type
-erase_if(deque_of_unique<T, Hash, KeyEqual> &c, Pred pred) {
+typename deque_of_unique<T, Hash, KeyEqual>::size_type erase_if(
+    deque_of_unique<T, Hash, KeyEqual> &c, Pred pred) {
   auto it = c.cbegin();
   typename deque_of_unique<T, Hash, KeyEqual>::size_type r = 0;
   while (it != c.cend()) {
@@ -355,41 +370,41 @@ bool operator==(const deque_of_unique<T, Hash, KeyEqual> &lhs,
   return (lhs.deque() == rhs.deque());
 }
 
-#if __cplusplus < 202003L
+#if __cplusplus < 202002L
 template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>>
 bool operator!=(const deque_of_unique<T, Hash, KeyEqual> &lhs,
                 const deque_of_unique<T, Hash, KeyEqual> &rhs) {
-  return (lhs.deque() != other.deque_);
+  return (lhs.deque() != rhs.deque());
 }
 
 template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>>
 bool operator<(const deque_of_unique<T, Hash, KeyEqual> &lhs,
                const deque_of_unique<T, Hash, KeyEqual> &rhs) {
-  return (lhs.deque() < other.deque_);
+  return (lhs.deque() < rhs.deque());
 }
 
 template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>>
 bool operator<=(const deque_of_unique<T, Hash, KeyEqual> &lhs,
                 const deque_of_unique<T, Hash, KeyEqual> &rhs) {
-  return (lhs.deque() <= other.deque_);
+  return (lhs.deque() <= rhs.deque());
 }
 
 template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>>
 bool operator>(const deque_of_unique<T, Hash, KeyEqual> &lhs,
                const deque_of_unique<T, Hash, KeyEqual> &rhs) {
-  return (lhs.deque() > other.deque_);
+  return (lhs.deque() > rhs.deque());
 }
 
 template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>>
 bool operator>=(const deque_of_unique<T, Hash, KeyEqual> &lhs,
                 const deque_of_unique<T, Hash, KeyEqual> &rhs) {
-  return (lhs.deque() >= other.deque_);
+  return (lhs.deque() >= rhs.deque());
 }
 #else
 template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>>
 auto operator<=>(const deque_of_unique<T, Hash, KeyEqual> &lhs,
                  const deque_of_unique<T, Hash, KeyEqual> &rhs) {
-  return (lhs.deque() <=> other.deque_);
+  return (lhs.deque() <=> rhs.deque());
 }
 #endif
-}; // namespace containerofunique
+};  // namespace containerofunique
