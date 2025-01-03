@@ -483,6 +483,7 @@ TEST(DequeOfUniqueTest, Iterator_ModificationNotAllowed) {
   auto const_it = dou.cbegin();
   ASSERT_EQ(*const_it, 1);
   ASSERT_TRUE(
+      // NOLINTNEXTLINE(modernize-type-traits)
       std::is_const<std::remove_reference_t<decltype(*const_it)>>::value);
 }
 
