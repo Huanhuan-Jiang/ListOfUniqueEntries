@@ -230,6 +230,41 @@ class vector_of_unique {
 
   size_type size() const noexcept { return vector_.size(); }
 
+// Look up
+#if __cplusplus < 202002L
+  const_iterator find(const T &x) const {
+    auto it = cbegin();
+    while (it != cend()) {
+      if (*it == x) {
+        return it;
+      }
+      it++;
+    }
+    return cend();
+  }
+#else
+  template <class K>
+  const_iterator find(const K &x) const {
+    auto it = cbegin();
+    while (it != cend()) {
+      if (*it == x) {
+        return it;
+      }
+      it++;
+    }
+    return cend();
+  }
+#endif
+
+#if __cplusplus > 202002L
+  bool contains(const key_type &key) const { return set_.contains(key); }
+
+  template <class K>
+  bool contains(const K &x) const {
+    return set_.contains(x);
+  }
+#endif
+
   // operators
   auto operator<=>(const vector_of_unique &other) const {
     return vector_ <=> other.vector_;
