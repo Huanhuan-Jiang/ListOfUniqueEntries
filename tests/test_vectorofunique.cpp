@@ -129,6 +129,33 @@ TEST(VectorOfUniqueTest, MoveAssignmentOperator) {
               ::testing::UnorderedElementsAreArray(vec));
 }
 
+// Conditionally define a test for C++17 or later
+#if __cplusplus >= 201703L
+TEST(VectorOfUniqueTest, MoveAssignmentIsNoexcept) {
+  vector_of_unique<std::string> vou1;
+  vector_of_unique<std::string> vou2;
+  vector_of_unique<std::string> vou3;
+
+  // Static assertion to check if the move assignment operator is noexcept
+  static_assert(noexcept(std::declval<vector_of_unique<std::string> &>() =
+                             std::declval<vector_of_unique<std::string> &&>()),
+                "Move assignment operator should be noexcept.");
+
+  // Test empty vous
+  EXPECT_NO_THROW(vou1 = std::move(vou2));
+
+  // Test non-empty vous
+  vou3.push_back("Hello, world!");
+  EXPECT_NO_THROW(vou1 = std::move(vou3));
+  // NOLINTNEXTLINE(bugprone-use-after-move,-warnings-as-errors)
+  EXPECT_TRUE(vou3.empty());
+
+  // Self-assignment test (optional, but good for robustness)
+  vou1 = std::move(vou1);
+  EXPECT_NO_THROW(vou1 = std::move(vou1));
+}
+#endif
+
 TEST(VectorOfUniqueTest, InitializerListAssignmentOperator) {
   containerofunique::vector_of_unique<int> vou = {1, 2, 3, 4};
   std::vector<int> vec = {1, 2, 3, 4};
