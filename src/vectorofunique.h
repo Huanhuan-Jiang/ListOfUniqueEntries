@@ -265,10 +265,6 @@ class vector_of_unique {
   }
 #endif
 
-  // operators
-  auto operator<=>(const vector_of_unique &other) const {
-    return vector_ <=> other.vector_;
-  }
   // Destructor
   ~vector_of_unique() = default;
 
@@ -280,4 +276,31 @@ class vector_of_unique {
   VectorType vector_;
   UnorderedSetType set_;
 };  // class vector_of_unique
+
+// Non-member function
+#if __cplusplus >= 202002L && __cplusplus < 202600L
+template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>,
+          class U>
+typename vector_of_unique<T, Hash, KeyEqual>::size_type erase(
+    vector_of_unique<T, Hash, KeyEqual> &c, const U &value) {
+  auto it = c.find(value);
+  if (it != c.cend()) {
+    c.erase(it);
+    return 1;
+  }
+  return 0;
+}
+#else
+template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>,
+          class U = T>
+typename vector_of_unique<T, Hash, KeyEqual>::size_type erase(
+    vector_of_unique<T, Hash, KeyEqual> &c, const U &value) {
+  auto it = c.find(value);
+  if (it != c.cend()) {
+    c.erase(it);
+    return 1;
+  }
+  return 0;
+}
+#endif
 };  // namespace containerofunique
