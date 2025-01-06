@@ -303,4 +303,22 @@ typename vector_of_unique<T, Hash, KeyEqual>::size_type erase(
   return 0;
 }
 #endif
+
+template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>,
+          class Pred>
+typename vector_of_unique<T, Hash, KeyEqual>::size_type erase_if(
+    vector_of_unique<T, Hash, KeyEqual> &c, Pred pred) {
+  auto it = c.cbegin();
+  typename vector_of_unique<T, Hash, KeyEqual>::size_type r = 0;
+  while (it != c.cend()) {
+    auto find_it = std::find_if(it, c.cend(), pred);
+    if (find_it != c.cend()) {
+      it = c.erase(find_it);
+      ++r;
+    } else {
+      ++it;
+    }
+  }
+  return r;
+}
 };  // namespace containerofunique
