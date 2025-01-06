@@ -33,7 +33,7 @@ public:
 
   // Member functions
   // Constructor
-  vector_of_unique() noexcept = default;
+  vector_of_unique() NOEXCEPT_CXX17 = default;
 
   template <class input_it> vector_of_unique(input_it first, input_it last) {
     _push_back(first, last);
@@ -44,13 +44,13 @@ public:
 
   vector_of_unique(const vector_of_unique &other) { _push_back(other); }
 
-  vector_of_unique(vector_of_unique &&other) noexcept {
+  vector_of_unique(vector_of_unique &&other) NOEXCEPT_CXX17 {
     std::swap(vector_, other.vector_);
     std::swap(set_, other.set_);
   }
 
   vector_of_unique &operator=(const vector_of_unique &other) = default;
-  vector_of_unique &operator=(vector_of_unique &&other) noexcept = default;
+  vector_of_unique &operator=(vector_of_unique &&other) = default;
   vector_of_unique &operator=(std::initializer_list<T> ilist) {
     vector_of_unique temp(ilist);
     std::swap(vector_, temp.vector_);
@@ -206,7 +206,7 @@ public:
     return any_added;
   }
 
-  void swap(vector_of_unique &other) noexcept {
+  void swap(vector_of_unique &other) {
     vector_.swap(other.vector_);
     set_.swap(other.set_);
   }
