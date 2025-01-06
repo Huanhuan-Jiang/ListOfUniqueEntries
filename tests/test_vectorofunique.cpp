@@ -13,8 +13,10 @@
 
 #include "vectorofunique.h"
 
+using namespace containerofunique;
+
 TEST(VectorOfUniqueTest, DefaultConstructor) {
-  containerofunique::vector_of_unique<int> vou;
+  vector_of_unique<int> vou;
   std::vector<int> emptyvec;
   std::unordered_set<int> emptyset;
 
@@ -25,8 +27,8 @@ TEST(VectorOfUniqueTest, DefaultConstructor) {
 TEST(VectorOfUniqueTest, ConstructorInitializesFromIterators) {
   std::vector<int> vec1 = {3, 1, 2, 3, 4, 5};
   std::vector<int> vec2 = {3, 1, 2, 4, 5};
-  containerofunique::vector_of_unique<int> vou1(vec1.begin(), vec1.end());
-  containerofunique::vector_of_unique<int> vou2(vec2.begin(), vec2.end());
+  vector_of_unique<int> vou1(vec1.begin(), vec1.end());
+  vector_of_unique<int> vou2(vec2.begin(), vec2.end());
 
   EXPECT_EQ(vou1.vector(), vec2);
   EXPECT_THAT(std::vector<int>(vou1.set().begin(), vou1.set().end()),
@@ -37,10 +39,9 @@ TEST(VectorOfUniqueTest, ConstructorInitializesFromIterators) {
 }
 
 TEST(VectorOfUniqueTest, ConstructorWithInitializerListChecksVectorAndSet) {
-  containerofunique::vector_of_unique<int> vou1 = {1};
-  containerofunique::vector_of_unique<int> vou2 = {1, 2};
-  containerofunique::vector_of_unique<int> vou3 = {1, 2, 3,
-                                                   3};  // duplicate elements
+  vector_of_unique<int> vou1 = {1};
+  vector_of_unique<int> vou2 = {1, 2};
+  vector_of_unique<int> vou3 = {1, 2, 3, 3};  // duplicate elements
 
   std::vector<int> vec1 = {1};
   std::vector<int> vec2 = {1, 2};
@@ -59,25 +60,25 @@ TEST(VectorOfUniqueTest, ConstructorWithInitializerListChecksVectorAndSet) {
 }
 
 TEST(VectorOfUniqueTest, CopyConstructor_EmptyVector) {
-  containerofunique::vector_of_unique<int> vou1;
+  vector_of_unique<int> vou1;
   // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
-  containerofunique::vector_of_unique<int> vou2(vou1);
+  vector_of_unique<int> vou2(vou1);
   EXPECT_TRUE(vou2.vector().empty());
   EXPECT_TRUE(vou2.set().empty());
 }
 
 TEST(VectorOfUniqueTest, CopyConstructor_SingleElement) {
-  containerofunique::vector_of_unique<int> vou1 = {42};
+  vector_of_unique<int> vou1 = {42};
   // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
-  containerofunique::vector_of_unique<int> vou2(vou1);
+  vector_of_unique<int> vou2(vou1);
   std::vector<int> vec = {42};
   EXPECT_EQ(vou2.vector(), vec);
   EXPECT_THAT(vou2.set(), ::testing::UnorderedElementsAreArray(vec));
 }
 
 TEST(VectorOfUniqueTest, CopyConstructor_Independence) {
-  containerofunique::vector_of_unique<int> vou1 = {1, 2, 3};
-  containerofunique::vector_of_unique<int> vou2(vou1);
+  vector_of_unique<int> vou1 = {1, 2, 3};
+  vector_of_unique<int> vou2(vou1);
 
   vou1.push_back(4);  // Modify the original
   EXPECT_EQ(vou1.vector(), std::vector<int>({1, 2, 3, 4}));
@@ -90,25 +91,24 @@ TEST(VectorOfUniqueTest, CopyConstructor_LargeData) {
   std::iota(large_data.begin(), large_data.end(), 0);
 
   // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
-  containerofunique::vector_of_unique<int> vou1(large_data.begin(),
-                                                large_data.end());
+  vector_of_unique<int> vou1(large_data.begin(), large_data.end());
   // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
-  containerofunique::vector_of_unique<int> vou2(vou1);
+  vector_of_unique<int> vou2(vou1);
 
   EXPECT_EQ(vou1.vector(), vou2.vector());
   EXPECT_THAT(vou2.set(), ::testing::UnorderedElementsAreArray(large_data));
 }
 
 TEST(VectorOfUniqueTest, MoveConstructor) {
-  containerofunique::vector_of_unique<int> vou1 = {1, 2, 3, 4};
-  containerofunique::vector_of_unique<int> vou2(std::move(vou1));
+  vector_of_unique<int> vou1 = {1, 2, 3, 4};
+  vector_of_unique<int> vou2(std::move(vou1));
   std::vector<int> vec = {1, 2, 3, 4};
   EXPECT_EQ(vou2.vector(), vec);
 }
 
 TEST(VectorOfUniqueTest, CopyAssignmentOperator) {
-  containerofunique::vector_of_unique<int> vou1 = {1, 2, 3, 4};
-  containerofunique::vector_of_unique<int> vou2 = vou1;
+  vector_of_unique<int> vou1 = {1, 2, 3, 4};
+  vector_of_unique<int> vou2 = vou1;
   std::vector<int> vec = {1, 2, 3, 4};
 
   EXPECT_EQ(vou2.vector(), vou1.vector());
@@ -120,8 +120,8 @@ TEST(VectorOfUniqueTest, CopyAssignmentOperator) {
 }
 
 TEST(VectorOfUniqueTest, MoveAssignmentOperator) {
-  containerofunique::vector_of_unique<int> vou1 = {1, 2, 3, 4};
-  containerofunique::vector_of_unique<int> vou2 = std::move(vou1);
+  vector_of_unique<int> vou1 = {1, 2, 3, 4};
+  vector_of_unique<int> vou2 = std::move(vou1);
   std::vector<int> vec = {1, 2, 3, 4};
 
   EXPECT_EQ(vou2.vector(), vec);
@@ -157,15 +157,206 @@ TEST(VectorOfUniqueTest, MoveAssignmentIsNoexcept) {
 #endif
 
 TEST(VectorOfUniqueTest, InitializerListAssignmentOperator) {
-  containerofunique::vector_of_unique<int> vou = {1, 2, 3, 4};
+  vector_of_unique<int> vou = {1, 2, 3, 4};
   std::vector<int> vec = {1, 2, 3, 4};
   EXPECT_EQ(vou.vector(), vec);
   EXPECT_THAT(std::vector<int>(vou.set().begin(), vou.set().end()),
               ::testing::UnorderedElementsAreArray(vec));
 }
 
+TEST(VectorOfUniqueTest, AssignEmptyRange) {
+  vector_of_unique<int> vou;
+  std::vector<int> empty_range;
+
+  vou.assign(empty_range.begin(), empty_range.end());
+  EXPECT_EQ(vou.size(), 0);
+}
+
+TEST(VectorOfUniqueTest, AssignEmptyInitializerList) {
+  vector_of_unique<int> vou;
+
+  vou.assign({});
+
+  EXPECT_EQ(vou.size(), 0);
+}
+
+TEST(VectorOfUniqueTest, AssignSingleElement) {
+  vector_of_unique<int> vou;
+  std::vector<int> single_element = {42};
+
+  vou.assign(single_element.begin(), single_element.end());
+  EXPECT_EQ(vou.size(), 1);
+  EXPECT_TRUE(vou.find(42) != vou.cend());
+}
+
+TEST(VectorOfUniqueTest, AssignSingleElementInitializerList) {
+  vector_of_unique<int> vou;
+
+  vou.assign({42});
+
+  EXPECT_EQ(vou.size(), 1);
+  EXPECT_TRUE(vou.find(42) != vou.cend());
+}
+
+TEST(VectorOfUniqueTest, AssignMultipleUniqueElements) {
+  vector_of_unique<int> vou;
+  std::vector<int> unique_elements = {1, 2, 3, 4, 5};
+
+  vou.assign(unique_elements.begin(), unique_elements.end());
+
+  // Check vector_ contains the correct elements in order
+  EXPECT_EQ(vou.vector().size(), 5);
+  for (size_t i = 0; i < unique_elements.size(); ++i) {
+    EXPECT_EQ(vou.vector()[i], unique_elements[i]);
+  }
+
+  // Check set_ contains the correct elements (no duplicates)
+  EXPECT_EQ(vou.set().size(), 5);
+  for (int elem : unique_elements) {
+    EXPECT_TRUE(vou.set().find(elem) != vou.set().end());
+  }
+}
+
+TEST(VectorOfUniqueTest, AssignMultipleUniqueElementsInitializerList) {
+  vector_of_unique<int> vou;
+  std::vector<int> unique_elements = {1, 2, 3, 4, 5};
+
+  vou.assign({1, 2, 3, 4, 5});
+
+  // Check vector_ contains the correct elements in order
+  EXPECT_EQ(vou.vector().size(), 5);
+  for (size_t i = 0; i < unique_elements.size(); ++i) {
+    EXPECT_EQ(vou.vector()[i], unique_elements[i]);
+  }
+
+  // Check set_ contains the correct elements (no duplicates)
+  EXPECT_EQ(vou.set().size(), 5);
+  for (int elem : unique_elements) {
+    EXPECT_TRUE(vou.set().find(elem) != vou.set().end());
+  }
+}
+
+TEST(VectorOfUniqueTest, AssignWithDuplicates) {
+  vector_of_unique<int> vou;
+  std::vector<int> elements_with_duplicates = {1, 2, 2, 3, 3, 4};
+
+  vou.assign(elements_with_duplicates.begin(), elements_with_duplicates.end());
+
+  // Check vector_ contains only unique elements in order
+  std::vector<int> expected = {1, 2, 3, 4};
+  EXPECT_EQ(vou.vector().size(), expected.size());
+  for (size_t i = 0; i < expected.size(); ++i) {
+    EXPECT_EQ(vou.vector()[i], expected[i]);
+  }
+
+  // Check set_ contains the same unique elements
+  EXPECT_EQ(vou.set().size(), expected.size());
+  for (int elem : expected) {
+    EXPECT_TRUE(vou.set().find(elem) != vou.set().end());
+  }
+}
+
+TEST(VectorOfUniqueTest, AssignWithDuplicatesInitializerList) {
+  vector_of_unique<int> vou;
+
+  vou.assign({1, 2, 2, 3, 3, 4});
+
+  // Check vector_ contains only unique elements in order
+  std::vector<int> expected = {1, 2, 3, 4};
+  EXPECT_EQ(vou.vector().size(), expected.size());
+  for (size_t i = 0; i < expected.size(); ++i) {
+    EXPECT_EQ(vou.vector()[i], expected[i]);
+  }
+
+  // Check set_ contains the same unique elements
+  EXPECT_EQ(vou.set().size(), expected.size());
+  for (int elem : expected) {
+    EXPECT_TRUE(vou.set().find(elem) != vou.set().end());
+  }
+}
+
+TEST(VectorOfUniqueTest, ReassignWithDifferentElements) {
+  vector_of_unique<int> vou;
+  std::vector<int> initial_elements = {1, 2, 3};
+  vou.assign(initial_elements.begin(), initial_elements.end());
+
+  std::vector<int> new_elements = {4, 5, 6};
+  vou.assign(new_elements.begin(), new_elements.end());
+
+  // Check vector_ has new elements
+  EXPECT_EQ(vou.vector().size(), new_elements.size());
+  for (size_t i = 0; i < new_elements.size(); ++i) {
+    EXPECT_EQ(vou.vector()[i], new_elements[i]);
+  }
+
+  // Check set_ has the same new elements
+  EXPECT_EQ(vou.set().size(), new_elements.size());
+  for (int elem : new_elements) {
+    EXPECT_TRUE(vou.set().find(elem) != vou.set().end());
+  }
+}
+
+TEST(VectorOfUniqueTest, ReassignWithDifferentElementsInitializerList) {
+  vector_of_unique<int> vou;
+  std::vector<int> initial_elements = {1, 2, 3};
+  std::vector<int> new_elements = {4, 5, 6};
+
+  vou.assign({1, 2, 3});
+
+  vou.assign({4, 5, 6});
+
+  // Check vector_ has new elements
+  EXPECT_EQ(vou.vector().size(), new_elements.size());
+  for (size_t i = 0; i < new_elements.size(); ++i) {
+    EXPECT_EQ(vou.vector()[i], new_elements[i]);
+  }
+
+  // Check set_ has the same new elements
+  EXPECT_EQ(vou.set().size(), new_elements.size());
+  for (int elem : new_elements) {
+    EXPECT_TRUE(vou.set().find(elem) != vou.set().end());
+  }
+}
+
+TEST(VectorOfUniqueTest, MixedInsertions) {
+  vector_of_unique<int> vou;
+  std::vector<int> initial_elements = {1, 2, 3};
+  vou.assign(initial_elements.begin(), initial_elements.end());
+
+  std::vector<int> new_elements = {3, 4, 5};
+  vou.assign(new_elements.begin(), new_elements.end());
+
+  // Check vector_ contains only the new unique elements
+  std::vector<int> expected = {3, 4, 5};
+  ASSERT_EQ(vou.vector().size(), expected.size());
+  for (size_t i = 0; i < expected.size(); ++i) {
+    ASSERT_EQ(vou.vector()[i], expected[i]);
+  }
+
+  // Check set_ contains the new unique elements
+  ASSERT_EQ(vou.set().size(), expected.size());
+  for (int elem : expected) {
+    ASSERT_TRUE(vou.set().find(elem) != vou.set().end());
+  }
+}
+
+TEST(VectorOfUniqueTest, AssignEmptyRangeAfterClearing) {
+  vector_of_unique<int> vou;
+  std::vector<int> initial_elements = {1, 2, 3};
+  vou.assign(initial_elements.begin(), initial_elements.end());
+
+  // Now clear and reassign an empty range
+  std::vector<int> empty_range;
+  vou.assign(empty_range.begin(), empty_range.end());
+
+  // Check that vector_ and set_ are empty after clearing and assigning empty
+  // range
+  ASSERT_EQ(vou.vector().size(), 0);
+  ASSERT_EQ(vou.set().size(), 0);
+}
+
 TEST(VectorOfUniqueTest, ElementAccess) {
-  containerofunique::vector_of_unique<int> vou = {1, 2, 3, 4};
+  vector_of_unique<int> vou = {1, 2, 3, 4};
   EXPECT_EQ(vou.front(), 1);
   EXPECT_EQ(vou.at(1), 2);
   EXPECT_EQ(vou[2], 3);
@@ -173,16 +364,14 @@ TEST(VectorOfUniqueTest, ElementAccess) {
 }
 
 TEST(VectorOfUniqueTest, At_OutOfRange) {
-  containerofunique::vector_of_unique<int> vou = {1, 2, 3, 4};
-  const containerofunique::vector_of_unique<std::string> vou_const = {"hello",
-                                                                      "world"};
+  vector_of_unique<int> vou = {1, 2, 3, 4};
+  const vector_of_unique<std::string> vou_const = {"hello", "world"};
   EXPECT_THROW(vou.at(4), std::out_of_range);
   EXPECT_THROW(vou_const.at(2), std::out_of_range);
 }
 
 TEST(VectorOfUniqueTest, ElementAccess_ConstVector) {
-  const containerofunique::vector_of_unique<std::string> vou = {"hello",
-                                                                "world"};
+  const vector_of_unique<std::string> vou = {"hello", "world"};
   EXPECT_EQ(vou.front(), "hello");
   EXPECT_EQ(vou.at(0), "hello");
   EXPECT_EQ(vou.at(1), "world");
@@ -193,7 +382,7 @@ TEST(VectorOfUniqueTest, ElementAccess_ConstVector) {
 
 // Test for normal iteration using cbegin() and cend()
 TEST(VectorOfUniqueTest, CbeginCend_Iteration) {
-  containerofunique::vector_of_unique<int> vou = {1, 2, 3, 4};
+  vector_of_unique<int> vou = {1, 2, 3, 4};
 
   auto it = vou.cbegin();
   EXPECT_EQ(*it, 1);
@@ -209,7 +398,7 @@ TEST(VectorOfUniqueTest, CbeginCend_Iteration) {
 
 // Test for normal iteration using crbegin() and crend()
 TEST(VectorOfUniqueTest, CrbeginCrend_Iteration) {
-  containerofunique::vector_of_unique<int> vou = {1, 2, 3, 4};
+  vector_of_unique<int> vou = {1, 2, 3, 4};
 
   auto rit = vou.crbegin();
   EXPECT_EQ(*rit, 4);
@@ -225,7 +414,7 @@ TEST(VectorOfUniqueTest, CrbeginCrend_Iteration) {
 
 // Test for empty container's iterators
 TEST(VectorOfUniqueTest, EmptyContainer_Iterators) {
-  containerofunique::vector_of_unique<int> empty_vou;
+  vector_of_unique<int> empty_vou;
 
   // For an empty vector, cbegin() should be equal to cend()
   EXPECT_EQ(empty_vou.cbegin(), empty_vou.cend());
@@ -235,7 +424,7 @@ TEST(VectorOfUniqueTest, EmptyContainer_Iterators) {
 
 // Test for const-correctness of iterators
 TEST(VectorOfUniqueTest, ConstCorrectness_Iterators) {
-  containerofunique::vector_of_unique<int> vou = {1, 2, 3, 4};
+  vector_of_unique<int> vou = {1, 2, 3, 4};
 
   EXPECT_TRUE((std::same_as<decltype(*vou.cbegin()), const int &>));
   EXPECT_TRUE((std::same_as<decltype(*vou.cend()), const int &>));
@@ -245,14 +434,14 @@ TEST(VectorOfUniqueTest, ConstCorrectness_Iterators) {
 
 // Test that iterators do not modify elements (compile-time check)
 TEST(VectorOfUniqueTest, Iterator_ModificationNotAllowed) {
-  containerofunique::vector_of_unique<int> vou = {1, 2, 3, 4};
+  vector_of_unique<int> vou = {1, 2, 3, 4};
   auto const_it = vou.cbegin();
   ASSERT_EQ(*const_it, 1);
   ASSERT_TRUE(std::is_const_v<std::remove_reference_t<decltype(*const_it)>>);
 }
 
 TEST(VectorOfUniqueTest, Clear) {
-  containerofunique::vector_of_unique<int> vou = {1, 2, 3, 4, 5};
+  vector_of_unique<int> vou = {1, 2, 3, 4, 5};
   vou.clear();
 
   EXPECT_EQ(vou.vector().size(), 0);  // Vector should be empty
@@ -261,7 +450,7 @@ TEST(VectorOfUniqueTest, Clear) {
 }
 
 TEST(VectorOfUniqueTest, Erase_SingleElement) {
-  containerofunique::vector_of_unique<int> vou = {1, 2, 3, 4, 5};
+  vector_of_unique<int> vou = {1, 2, 3, 4, 5};
   std::vector<int> expected_vector = {2, 3, 4, 5};
   std::unordered_set<int> expected_set = {2, 3, 4, 5};
 
@@ -271,13 +460,13 @@ TEST(VectorOfUniqueTest, Erase_SingleElement) {
 }
 
 TEST(VectorOfUniqueTest, Erase_FromEmptyContainer) {
-  containerofunique::vector_of_unique<int> vou;
+  vector_of_unique<int> vou;
   EXPECT_NO_THROW(vou.erase(vou.cbegin()));
   EXPECT_EQ(vou.vector().size(), 0);
 }
 
 TEST(VectorOfUniqueTest, EraseEmptyRange) {
-  containerofunique::vector_of_unique<int> vou1 = {1, 2, 3, 4, 5, 6};
+  vector_of_unique<int> vou1 = {1, 2, 3, 4, 5, 6};
   std::vector<int> vec2 = {1, 2, 3, 4, 5, 6};
   std::unordered_set<int> set2 = {1, 2, 3, 4, 5, 6};
 
@@ -288,7 +477,7 @@ TEST(VectorOfUniqueTest, EraseEmptyRange) {
 }
 
 TEST(VectorOfUniqueTest, EraseRangeOfElements) {
-  containerofunique::vector_of_unique<int> vou1 = {1, 2, 3, 4, 5, 6};
+  vector_of_unique<int> vou1 = {1, 2, 3, 4, 5, 6};
   std::vector<int> vec2 = {4, 5, 6};
   std::unordered_set<int> set2 = {4, 5, 6};
 
@@ -298,7 +487,7 @@ TEST(VectorOfUniqueTest, EraseRangeOfElements) {
 }
 
 TEST(VectorOfUniqueTest, EraseAllElements) {
-  containerofunique::vector_of_unique<int> vou1 = {1, 2, 3, 4, 5, 6};
+  vector_of_unique<int> vou1 = {1, 2, 3, 4, 5, 6};
   std::vector<int> vec2 = {};
   std::unordered_set<int> set2 = {};
 
@@ -310,7 +499,7 @@ TEST(VectorOfUniqueTest, EraseAllElements) {
 
 TEST(VectorOfUniqueTest, InsertLvalueRvalue) {
   std::cout << "Test inserting a unique element" << '\n';
-  containerofunique::vector_of_unique<int> vou1 = {1};
+  vector_of_unique<int> vou1 = {1};
   std::vector<int> vec1 = {1};
   auto result1 = vou1.insert(vou1.cbegin(), 2);
   auto expected_result1 = vec1.insert(vec1.cbegin(), 2);
@@ -318,14 +507,14 @@ TEST(VectorOfUniqueTest, InsertLvalueRvalue) {
   EXPECT_TRUE(result1.second);
 
   std::cout << "Test inserting a duplicate element" << '\n';
-  containerofunique::vector_of_unique<int> vou2 = {1};
+  vector_of_unique<int> vou2 = {1};
   std::vector<int> vec2 = {1, 2};
   auto result2 = vou2.insert(vou2.cbegin(), 1);
   EXPECT_EQ(*result2.first, *vou2.cbegin());
   EXPECT_FALSE(result2.second);
 
   std::cout << "Test inserting a unique rvalue string element" << '\n';
-  containerofunique::vector_of_unique<std::string> vou3 = {"hello", "world"};
+  vector_of_unique<std::string> vou3 = {"hello", "world"};
   std::vector<std::string> vec3 = {"hello", "world"};
   std::string str1 = "good";
   auto expected_result3 = vec3.insert(vec3.cbegin(), std::move("good"));
@@ -336,7 +525,7 @@ TEST(VectorOfUniqueTest, InsertLvalueRvalue) {
   EXPECT_TRUE(result3.second);
 
   std::cout << "Test inserting a duplicate rvalue string element" << '\n';
-  containerofunique::vector_of_unique<std::string> vou4 = {"hello", "world"};
+  vector_of_unique<std::string> vou4 = {"hello", "world"};
   std::vector<std::string> vec4 = {"hello", "world"};
   std::string str2 = "hello";
   auto result4 = vou4.insert(vou4.cbegin(), std::move(str2));
@@ -346,9 +535,9 @@ TEST(VectorOfUniqueTest, InsertLvalueRvalue) {
 }
 
 TEST(VectorOfUniqueTest, InsertRangeTest) {
-  containerofunique::vector_of_unique<std::string> vou5_1 = {"hello", "world"};
-  containerofunique::vector_of_unique<std::string> vou5_2 = {"good", "morning"};
-  containerofunique::vector_of_unique<std::string> vou5_3 = {"hello", "world"};
+  vector_of_unique<std::string> vou5_1 = {"hello", "world"};
+  vector_of_unique<std::string> vou5_2 = {"good", "morning"};
+  vector_of_unique<std::string> vou5_3 = {"hello", "world"};
   std::vector<std::string> vec5 = {"good", "morning", "hello", "world"};
   auto result5_1 =
       vou5_1.insert(vou5_1.cbegin(), vou5_2.cbegin(), vou5_2.cbegin() + 2);
@@ -359,7 +548,7 @@ TEST(VectorOfUniqueTest, InsertRangeTest) {
   EXPECT_EQ(vou5_1.vector(), vec5);
   EXPECT_EQ(*result5_2, *(vou5_1.cbegin()));
 
-  containerofunique::vector_of_unique<std::string> vou6 = {"hello", "world"};
+  vector_of_unique<std::string> vou6 = {"hello", "world"};
   std::vector<std::string> vec6 = {"good", "morning", "hello", "world"};
   auto result6_1 = vou6.insert(vou6.cbegin(), {"good", "morning"});
   EXPECT_EQ(vou6.vector(), vec6);
@@ -370,7 +559,7 @@ TEST(VectorOfUniqueTest, InsertRangeTest) {
 }
 
 TEST(VectorOfUniqueTest, InsertEmptyRange) {
-  containerofunique::vector_of_unique<std::string> vou1 = {"existing"};
+  vector_of_unique<std::string> vou1 = {"existing"};
   std::vector<std::string> vec1 = {"existing"};
   std::vector<std::string> vec2 = {"hello", "world", "apple", "fruit"};
 
@@ -384,7 +573,7 @@ TEST(VectorOfUniqueTest, InsertEmptyRange) {
 }
 
 TEST(VectorOfUniqueTest, InsertAtEnd) {
-  containerofunique::vector_of_unique<std::string> vou = {"hello"};
+  vector_of_unique<std::string> vou = {"hello"};
   auto result = vou.insert(vou.cend(), "world");
   EXPECT_EQ(*result.first, vou.back());
   EXPECT_EQ(result.second, true);
@@ -392,7 +581,7 @@ TEST(VectorOfUniqueTest, InsertAtEnd) {
 }
 
 TEST(VectorOfUniqueTest, InsertAtBeginning) {
-  containerofunique::vector_of_unique<std::string> vou = {"world"};
+  vector_of_unique<std::string> vou = {"world"};
   auto result = vou.insert(vou.cbegin(), "hello");
   EXPECT_EQ(*result.first, vou.front());
   EXPECT_EQ(result.second, true);
@@ -400,7 +589,7 @@ TEST(VectorOfUniqueTest, InsertAtBeginning) {
 }
 
 TEST(VectorOfUniqueTest, InsertDuplicateElement) {
-  containerofunique::vector_of_unique<std::string> vou = {"hello", "world"};
+  vector_of_unique<std::string> vou = {"hello", "world"};
   auto result = vou.insert(vou.cend(), "hello");
   EXPECT_EQ(result.first, vou.cend());
   EXPECT_EQ(result.second, false);
@@ -408,7 +597,7 @@ TEST(VectorOfUniqueTest, InsertDuplicateElement) {
 }
 
 TEST(VectorOfUniqueTest, InsertIntoEmptyVector) {
-  containerofunique::vector_of_unique<std::string> vou;
+  vector_of_unique<std::string> vou;
   auto result = vou.insert(vou.cend(), "first");
   EXPECT_EQ(*result.first, vou.front());
   EXPECT_EQ(result.second, true);
@@ -416,7 +605,7 @@ TEST(VectorOfUniqueTest, InsertIntoEmptyVector) {
 }
 
 TEST(VectorOfUniqueTest, InsertAtSpecificPosition) {
-  containerofunique::vector_of_unique<std::string> vou = {"hello", "world"};
+  vector_of_unique<std::string> vou = {"hello", "world"};
   auto it = vou.cbegin();
   auto result = vou.insert(it + 1, "goodbye");
 
@@ -427,7 +616,7 @@ TEST(VectorOfUniqueTest, InsertAtSpecificPosition) {
 }
 
 TEST(VectorOfUniqueTest, EmplaceIntoEmpty) {
-  containerofunique::vector_of_unique<std::string> vou;
+  vector_of_unique<std::string> vou;
   std::vector<std::string> vec;
 
   auto result = vou.emplace(vou.cbegin(), "hello");
@@ -439,7 +628,7 @@ TEST(VectorOfUniqueTest, EmplaceIntoEmpty) {
 }
 
 TEST(VectorOfUniqueTest, EmplaceAtEnd) {
-  containerofunique::vector_of_unique<std::string> vou = {"hello", "world"};
+  vector_of_unique<std::string> vou = {"hello", "world"};
   std::vector<std::string> vec = {"hello", "world"};
 
   auto result = vou.emplace(vou.cend(), "goodbye");
@@ -473,7 +662,7 @@ struct hash<ThrowingType> {
 }  // namespace std
 
 TEST(VectorOfUniqueTest, EmplaceExceptionSafety) {
-  containerofunique::vector_of_unique<ThrowingType> vou;
+  vector_of_unique<ThrowingType> vou;
 
   // Normal insertion
   EXPECT_NO_THROW(vou.emplace(vou.cbegin(), "hello"));
@@ -487,7 +676,7 @@ TEST(VectorOfUniqueTest, EmplaceExceptionSafety) {
 }
 
 TEST(VectorOfUniqueTest, EmplaceNonString) {
-  containerofunique::vector_of_unique<int> vou = {1, 2, 3};
+  vector_of_unique<int> vou = {1, 2, 3};
   std::vector<int> vec = {1, 2, 3};
 
   auto result = vou.emplace(vou.cbegin(), 4);
@@ -506,7 +695,7 @@ TEST(VectorOfUniqueTest, EmplaceNonString) {
 TEST(VectorOfUniqueTest, EmplaceBack_NewElement) {
   // Test 1: Emplace a new element "good" to the end of vou
   // Emplace_back "good" to vou1
-  containerofunique::vector_of_unique<std::string> vou = {"hello", "world"};
+  vector_of_unique<std::string> vou = {"hello", "world"};
   std::vector<std::string> vec = {"hello", "world"};
   auto result = vou.emplace_back("good");
   vec.emplace_back("good");
@@ -520,7 +709,7 @@ TEST(VectorOfUniqueTest, EmplaceBack_NewElement) {
 TEST(VectorOfUniqueTest, EmplaceBack_DuplicateElement) {
   // Test 2: Try emplacing "good" twice (duplicate value)
   // Expected: No insertion, vector remains unchanged
-  containerofunique::vector_of_unique<std::string> vou = {"hello", "world"};
+  vector_of_unique<std::string> vou = {"hello", "world"};
   std::vector<std::string> vec = {"hello", "world"};
   vou.emplace_back("good");
   vec.emplace_back("good");
@@ -533,7 +722,7 @@ TEST(VectorOfUniqueTest, EmplaceBack_DuplicateElement) {
 TEST(VectorOfUniqueTest, EmplaceBack_Rvalue) {
   // Test 3: Emplace an rvalue "good" to the back of vou
   // Expected: "good" should be inserted at the end of the vector
-  containerofunique::vector_of_unique<std::string> vou = {"hello", "world"};
+  vector_of_unique<std::string> vou = {"hello", "world"};
   std::string str = "good";
   auto result = vou.emplace_back(std::move(str));
   std::vector<std::string> vec = {"hello", "world", "good"};
@@ -547,7 +736,7 @@ TEST(VectorOfUniqueTest, EmplaceBack_Rvalue) {
 TEST(VectorOfUniqueTest, EmplaceBack_DuplicateRvalue) {
   // Test 4: Try emplacing the rvalues "good" twice (duplicate value)
   // Expected: No insertion, vector remains unchanged
-  containerofunique::vector_of_unique<std::string> vou = {"hello", "world"};
+  vector_of_unique<std::string> vou = {"hello", "world"};
   std::string str1 = "good";
   std::string str2 = "good";
   vou.emplace_back(std::move(str1));
@@ -561,7 +750,7 @@ TEST(VectorOfUniqueTest, EmplaceBack_DuplicateRvalue) {
 TEST(VectorOfUniqueTest, EmplaceBack_EmptyVector) {
   // Test 5: Emplace a new element "first" to an empty vector
   // Expected: "first" should be at the back of the vector
-  containerofunique::vector_of_unique<std::string> vou_empty;
+  vector_of_unique<std::string> vou_empty;
   auto result_empty = vou_empty.emplace_back("first");
   std::vector<std::string> vec = {"first"};
   EXPECT_EQ(*vou_empty.cbegin(), "first");
@@ -575,7 +764,7 @@ TEST(VectorOfUniqueTest, EmplaceBack_MultipleElements) {
   // Test 6: Emplace multiple distinct elements to the back of the vector
   // Expected: Elements should be inserted at the back in the order of
   // emplace_back calls
-  containerofunique::vector_of_unique<std::string> vou = {"hello"};
+  vector_of_unique<std::string> vou = {"hello"};
   vou.emplace_back("world");
   vou.emplace_back("good");
   vou.emplace_back("morning");
@@ -592,7 +781,7 @@ TEST(VectorOfUniqueTest, EmplaceBack_MultipleElements) {
 TEST(VectorOfUniqueTest, EmplaceBack_NonStringType) {
   // Test 7: Emplace an integer to the back of an integer vector (non-string
   // type) Expected: The integer 4 should be at the back of the vector
-  containerofunique::vector_of_unique<int> vou = {1, 2, 3};
+  vector_of_unique<int> vou = {1, 2, 3};
   auto result = vou.emplace_back(4);
   std::vector<int> vec = {1, 2, 3, 4};
   EXPECT_EQ(*(vou.cend() - 1), 4);
@@ -603,22 +792,21 @@ TEST(VectorOfUniqueTest, EmplaceBack_NonStringType) {
 }
 
 TEST(VectorOfUniqueTest, PopBack_EmptyVector) {
-  containerofunique::vector_of_unique<std::string> vou;
+  vector_of_unique<std::string> vou;
   EXPECT_NO_THROW(vou.pop_back());
   EXPECT_TRUE(vou.vector().empty());
   EXPECT_TRUE(vou.set().empty());
 }
 
 TEST(VectorOfUniqueTest, PopBack_SingleElement) {
-  containerofunique::vector_of_unique<std::string> vou = {"hello"};
+  vector_of_unique<std::string> vou = {"hello"};
   vou.pop_back();
   EXPECT_TRUE(vou.vector().empty());
   EXPECT_TRUE(vou.set().empty());
 }
 
 TEST(VectorOfUniqueTest, PopBack_MultipleSequential) {
-  containerofunique::vector_of_unique<std::string> vou = {"hello", "world",
-                                                          "goodbye"};
+  vector_of_unique<std::string> vou = {"hello", "world", "goodbye"};
   vou.pop_back();
   EXPECT_EQ(vou.vector(), (std::vector<std::string>{"hello", "world"}));
   EXPECT_THAT(vou.set(), ::testing::UnorderedElementsAre("hello", "world"));
@@ -633,7 +821,7 @@ TEST(VectorOfUniqueTest, PopBack_MultipleSequential) {
 }
 
 TEST(VectorOfUniqueTest, PushBack_NewElement) {
-  containerofunique::vector_of_unique<std::string> vou = {"hello", "world"};
+  vector_of_unique<std::string> vou = {"hello", "world"};
   std::vector<std::string> expected = {"hello", "world", "good"};
 
   // Test pushing a new element to the back
@@ -644,7 +832,7 @@ TEST(VectorOfUniqueTest, PushBack_NewElement) {
 }
 
 TEST(VectorOfUniqueTest, PushBack_DuplicateElement) {
-  containerofunique::vector_of_unique<std::string> vou = {"hello", "world"};
+  vector_of_unique<std::string> vou = {"hello", "world"};
   std::vector<std::string> expected = {"hello", "world"};
 
   // Test pushing a duplicate element
@@ -656,7 +844,7 @@ TEST(VectorOfUniqueTest, PushBack_DuplicateElement) {
 }
 
 TEST(VectorOfUniqueTest, PushBack_Rvalue) {
-  containerofunique::vector_of_unique<std::string> vou = {"hello", "world"};
+  vector_of_unique<std::string> vou = {"hello", "world"};
   std::vector<std::string> expected = {"hello", "world", "good"};
 
   // Test pushing an rvalue to the back
@@ -668,7 +856,7 @@ TEST(VectorOfUniqueTest, PushBack_Rvalue) {
 }
 
 TEST(VectorOfUniqueTest, PushBack_EmptyRvalue) {
-  containerofunique::vector_of_unique<std::string> vou = {"hello", "world"};
+  vector_of_unique<std::string> vou = {"hello", "world"};
   std::vector<std::string> expected = {"hello", "world", ""};
 
   // Test pushing an empty string as an rvalue
@@ -680,7 +868,7 @@ TEST(VectorOfUniqueTest, PushBack_EmptyRvalue) {
 }
 
 TEST(VectorOfUniqueTest, PushBack_EmptyContainer) {
-  containerofunique::vector_of_unique<std::string> vou;
+  vector_of_unique<std::string> vou;
   std::vector<std::string> expected = {"hello"};
 
   // Test pushing to an initially empty container
@@ -691,8 +879,8 @@ TEST(VectorOfUniqueTest, PushBack_EmptyContainer) {
 }
 
 TEST(VectorOfUniqueTest, MemberFunctionSwap) {
-  containerofunique::vector_of_unique<std::string> vou1 = {"hello", "world"};
-  containerofunique::vector_of_unique<std::string> vou2 = {"good", "morning"};
+  vector_of_unique<std::string> vou1 = {"hello", "world"};
+  vector_of_unique<std::string> vou2 = {"good", "morning"};
   std::vector<std::string> vec1 = {"hello", "world"};
   std::vector<std::string> vec2 = {"good", "morning"};
 
@@ -704,8 +892,8 @@ TEST(VectorOfUniqueTest, MemberFunctionSwap) {
 }
 
 TEST(VectorOfUniqueTest, StdSwap) {
-  containerofunique::vector_of_unique<std::string> vou1 = {"hello", "world"};
-  containerofunique::vector_of_unique<std::string> vou2 = {"good", "morning"};
+  vector_of_unique<std::string> vou1 = {"hello", "world"};
+  vector_of_unique<std::string> vou2 = {"good", "morning"};
   std::vector<std::string> vec1 = {"hello", "world"};
   std::vector<std::string> vec2 = {"good", "morning"};
 
@@ -717,23 +905,21 @@ TEST(VectorOfUniqueTest, StdSwap) {
 }
 
 TEST(VectorOfUniqueTest, Empty) {
-  containerofunique::vector_of_unique<std::string> vou1;
+  vector_of_unique<std::string> vou1;
   EXPECT_TRUE(vou1.empty());
-  containerofunique::vector_of_unique<std::string> vou2 = {"good"};
+  vector_of_unique<std::string> vou2 = {"good"};
   EXPECT_FALSE(vou2.empty());
-  containerofunique::vector_of_unique<std::string> vou3 = {"good", "morning",
-                                                           "hello", "world"};
+  vector_of_unique<std::string> vou3 = {"good", "morning", "hello", "world"};
   EXPECT_FALSE(vou3.empty());
 }
 
 TEST(VectorOfUniqueTest, Size) {
   // Test 1: Vector with a single element
-  containerofunique::vector_of_unique<std::string> vou1 = {"good"};
+  vector_of_unique<std::string> vou1 = {"good"};
   EXPECT_EQ(vou1.size(), 1);
 
   // Test 2: Vector with multiple unique elements
-  containerofunique::vector_of_unique<std::string> vou2 = {"good", "morning",
-                                                           "hello", "world"};
+  vector_of_unique<std::string> vou2 = {"good", "morning", "hello", "world"};
   EXPECT_EQ(vou2.size(), 4);
 
   // Adding a new unique element increases the size
@@ -745,33 +931,33 @@ TEST(VectorOfUniqueTest, Size) {
   EXPECT_EQ(vou2.size(), 5);
 
   // Test 3: Empty vector
-  containerofunique::vector_of_unique<std::string> vou3;
+  vector_of_unique<std::string> vou3;
   EXPECT_EQ(vou3.size(), 0);  // Corrected to check vou3
 }
 
 TEST(VectorOfUniqueTest, Operator) {
   // Test 1: Identical vectors
-  containerofunique::vector_of_unique<std::string> vou1_1 = {"good"};
-  containerofunique::vector_of_unique<std::string> vou1_2 = {"good"};
+  vector_of_unique<std::string> vou1_1 = {"good"};
+  vector_of_unique<std::string> vou1_2 = {"good"};
   EXPECT_EQ(vou1_1 <=> vou1_2, std::strong_ordering::equal);
 
   // Test 2: Subset case
-  containerofunique::vector_of_unique<std::string> vou2 = {"good", "morning"};
+  vector_of_unique<std::string> vou2 = {"good", "morning"};
   EXPECT_EQ(vou1_1 <=> vou2, std::weak_ordering::less);
   EXPECT_EQ(vou2 <=> vou1_1, std::weak_ordering::greater);
 
   // Test 3: Different order case (for robustness, even if not expected in
   // unique vectors)
-  containerofunique::vector_of_unique<std::string> vou3 = {"morning", "good"};
+  vector_of_unique<std::string> vou3 = {"morning", "good"};
   EXPECT_EQ(vou2 <=> vou3, std::weak_ordering::less);
 
   // Test 4: Lexicographical comparison
-  containerofunique::vector_of_unique<std::string> vou4 = {"apple", "banana"};
+  vector_of_unique<std::string> vou4 = {"apple", "banana"};
   EXPECT_EQ(vou4 <=> vou1_1, std::weak_ordering::less);
 
   // Test 5: Empty vectors
-  containerofunique::vector_of_unique<std::string> vou_empty1;
-  containerofunique::vector_of_unique<std::string> vou_empty2;
+  vector_of_unique<std::string> vou_empty1;
+  vector_of_unique<std::string> vou_empty2;
   EXPECT_EQ(vou_empty1 <=> vou_empty2, std::strong_ordering::equal);
   EXPECT_EQ(vou_empty1 <=> vou1_1, std::weak_ordering::less);
 }
