@@ -34,13 +34,17 @@ jobs:
           cmake ..
           make
           echo "Running tests for C++14"
-          ./dequeofuniquetest_cxx14
+          ./test_cxx14_deque
+          ./test_cxx14_vector
           echo "Running tests for C++17"
-          ./dequeofuniquetest_cxx17
+          ./test_cxx17_deque
+          ./test_cxx14_vector
           echo "Running tests for C++20"
-          ./dequeofuniquetest_cxx20
+          ./test_cxx20_deque
+          ./test_cxx14_vector
           echo "Running tests for C++23"
-          ./dequeofuniquetest_cxx23
+          ./test_cxx23_deque
+          ./test_cxx14_vector
           find ../ \( -name '*.cpp' -o -name '*.h' \) \
           -not \( -path '*/build/*' -o -path '*/thirdparty/*' \) \
           -exec clang-tidy -p=. --config-file=../.clang-tidy -extra-arg=-Wunused-variable {} + \
