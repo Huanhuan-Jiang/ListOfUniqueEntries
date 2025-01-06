@@ -25,12 +25,17 @@ TEST(DequeOfUniqueTest, DefaultConstructor) {
 }
 
 TEST(DequeOfUniqueTest, ConstructorInitializesFromIterators) {
-  std::deque<int> dq = {1, 2, 3, 4, 5};
-  deque_of_unique<int> dou(dq.begin(), dq.end());
+  std::deque<int> dq1 = {3, 1, 2, 3, 4, 5};
+  std::deque<int> dq2 = {3, 1, 2, 4, 5};
+  containerofunique::deque_of_unique<int> vou1(dq1.begin(), dq1.end());
+  containerofunique::deque_of_unique<int> vou2(dq2.begin(), dq2.end());
 
-  EXPECT_EQ(dou.deque(), dq);
-  EXPECT_THAT(std::deque<int>(dou.set().begin(), dou.set().end()),
-              ::testing::UnorderedElementsAreArray(dq));
+  EXPECT_EQ(vou1.deque(), dq2);
+  EXPECT_THAT(std::deque<int>(vou1.set().begin(), vou1.set().end()),
+              ::testing::UnorderedElementsAreArray(dq2));
+  EXPECT_EQ(vou2.deque(), dq2);
+  EXPECT_THAT(std::deque<int>(vou2.set().begin(), vou2.set().end()),
+              ::testing::UnorderedElementsAreArray(dq2));
 }
 
 TEST(DequeOfUniqueTest, ConstructorWithInitializerListChecksDequeAndSet) {
