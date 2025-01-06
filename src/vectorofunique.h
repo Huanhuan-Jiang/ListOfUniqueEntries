@@ -166,8 +166,7 @@ class vector_of_unique {
   }
 #else
   template <class... Args>
-  CONSTEXPR_CXX20 std::optional<std::reference_wrapper<T>> emplace_back(
-      Args &&...args) {
+  std::optional<std::reference_wrapper<T>> emplace_back(Args &&...args) {
     if (set_.emplace(args...).second) {
       return vector_.emplace_back(std::forward<Args>(args)...);
     }
