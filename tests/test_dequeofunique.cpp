@@ -457,7 +457,7 @@ TEST(DequeOfUniqueTest, IteratorsAreNoexcept) {
   EXPECT_NO_THROW(dou5.crend());
 }
 
-TEST(DequeOfUniqueTest, Emptydou_Iterators) {
+TEST(DequeOfUniqueTest, EmptyContainerIterators) {
   deque_of_unique<int> empty_dou;
 
   EXPECT_EQ(empty_dou.cbegin(), empty_dou.cend());
@@ -511,7 +511,7 @@ TEST(DequeOfUniqueTest, Erase_SingleElement) {
   EXPECT_THAT(dou.set(), ::testing::UnorderedElementsAreArray(expected_set));
 }
 
-TEST(DequeOfUniqueTest, Erase_FromEmptydou) {
+TEST(DequeOfUniqueTest, Erase_FromEmptyContainer) {
   deque_of_unique<int> dou;
   EXPECT_NO_THROW(dou.erase(dou.cbegin()));
   EXPECT_EQ(dou.deque().size(), 0);
@@ -1139,7 +1139,7 @@ TEST(DequeOfUniqueTest, PushBack_EmptyRvalue) {
   EXPECT_THAT(dou.set(), ::testing::UnorderedElementsAreArray(expected));
 }
 
-TEST(DequeOfUniqueTest, PushBack_Emptydou) {
+TEST(DequeOfUniqueTest, PushBack_EmptyContainer) {
   deque_of_unique<std::string> dou;
   std::deque<std::string> expected = {"hello"};
 
@@ -1479,7 +1479,7 @@ TEST(DequeOfUniqueTest, EraseIfAllElementsRemoved) {
   EXPECT_EQ(dou.size(), 0);
 }
 
-TEST(DequeOfUniqueTest, EraseIfEmptydou) {
+TEST(DequeOfUniqueTest, EraseIfEmptyContainer) {
   deque_of_unique<int> dou;
   auto pred = [](int x) { return x % 2 == 0; };
   size_t removed_count = erase_if(dou, pred);
