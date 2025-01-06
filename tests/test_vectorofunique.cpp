@@ -393,10 +393,9 @@ TEST(VectorOfUniqueTest, CbeginCend_Iteration) {
   ++it;
   EXPECT_EQ(*it, 4);
   ++it;
-  EXPECT_EQ(it, vou.cend());  // Ensure iterator reaches cend()
+  EXPECT_EQ(it, vou.cend());
 }
 
-// Test for normal iteration using crbegin() and crend()
 TEST(VectorOfUniqueTest, CrbeginCrend_Iteration) {
   vector_of_unique<int> vou = {1, 2, 3, 4};
 
@@ -409,27 +408,80 @@ TEST(VectorOfUniqueTest, CrbeginCrend_Iteration) {
   ++rit;
   EXPECT_EQ(*rit, 1);
   ++rit;
-  EXPECT_EQ(rit, vou.crend());  // Ensure reverse iterator reaches crend()
+  EXPECT_EQ(rit, vou.crend());
 }
 
-// Test for empty container's iterators
-TEST(VectorOfUniqueTest, EmptyContainer_Iterators) {
+TEST(VectorOfUniqueTest, IteratorsAreNoexcept) {
+  // Test with empty vou
+  vector_of_unique<int> vou1;
+  static_assert(noexcept(vou1.cbegin()), "cbegin() should be noexcept.");
+  EXPECT_NO_THROW(vou1.cbegin());
+  static_assert(noexcept(vou1.cend()), "cend() should be noexcept.");
+  EXPECT_NO_THROW(vou1.cend());
+  static_assert(noexcept(vou1.crbegin()), "crbegin() should be noexcept.");
+  EXPECT_NO_THROW(vou1.crbegin());
+  static_assert(noexcept(vou1.crend()), "crend() should be noexcept.");
+  EXPECT_NO_THROW(vou1.crend());
+
+  // Test with non-empty vou
+  vector_of_unique<int> vou2 = {1, 2, 3, 4};
+  static_assert(noexcept(vou2.cbegin()), "cbegin() should be noexcept.");
+  EXPECT_NO_THROW(vou2.cbegin());
+  static_assert(noexcept(vou2.cend()), "cend() should be noexcept.");
+  EXPECT_NO_THROW(vou2.cend());
+  static_assert(noexcept(vou2.crbegin()), "crbegin() should be noexcept.");
+  EXPECT_NO_THROW(vou2.crbegin());
+  static_assert(noexcept(vou2.crend()), "crend() should be noexcept.");
+  EXPECT_NO_THROW(vou2.crend());
+
+  // Test with complex data (std::string)
+  vector_of_unique<std::string> vou3 = {"apple", "banana", "cherry"};
+  static_assert(noexcept(vou3.cbegin()), "cbegin() should be noexcept.");
+  EXPECT_NO_THROW(vou3.cbegin());
+  static_assert(noexcept(vou3.cend()), "cend() should be noexcept.");
+  EXPECT_NO_THROW(vou3.cend());
+  static_assert(noexcept(vou3.crbegin()), "crbegin() should be noexcept.");
+  EXPECT_NO_THROW(vou3.crbegin());
+  static_assert(noexcept(vou3.crend()), "crend() should be noexcept.");
+  EXPECT_NO_THROW(vou3.crend());
+
+  // Test with self-move assignment
+  vector_of_unique<int> vou5 = {1, 2, 3};
+  static_assert(noexcept(vou5.cbegin()), "cbegin() should be noexcept.");
+  EXPECT_NO_THROW(vou5 = std::move(vou5));
+  EXPECT_NO_THROW(vou5.cbegin());
+  static_assert(noexcept(vou5.cend()), "cend() should be noexcept.");
+  EXPECT_NO_THROW(vou5.cend());
+  static_assert(noexcept(vou5.crbegin()), "crbegin() should be noexcept.");
+  EXPECT_NO_THROW(vou5.crbegin());
+  static_assert(noexcept(vou5.crend()), "crend() should be noexcept.");
+  EXPECT_NO_THROW(vou5.crend());
+}
+
+TEST(VectorOfUniqueTest, Emptyvou_Iterators) {
   vector_of_unique<int> empty_vou;
 
-  // For an empty vector, cbegin() should be equal to cend()
   EXPECT_EQ(empty_vou.cbegin(), empty_vou.cend());
-  // For an empty vector, crbegin() should be equal to crend()
   EXPECT_EQ(empty_vou.crbegin(), empty_vou.crend());
 }
 
-// Test for const-correctness of iterators
 TEST(VectorOfUniqueTest, ConstCorrectness_Iterators) {
   vector_of_unique<int> vou = {1, 2, 3, 4};
-
+#if __cplusplus >= 202002L
   EXPECT_TRUE((std::same_as<decltype(*vou.cbegin()), const int &>));
   EXPECT_TRUE((std::same_as<decltype(*vou.cend()), const int &>));
   EXPECT_TRUE((std::same_as<decltype(*vou.crbegin()), const int &>));
   EXPECT_TRUE((std::same_as<decltype(*vou.crend()), const int &>));
+#else
+  // NOLINTNEXTLINE(modernize-type-traits)
+  EXPECT_TRUE((std::is_same<decltype(*vou.cbegin()), const int &>::value));
+  // NOLINTNEXTLINE(modernize-type-traits)
+  EXPECT_TRUE((std::is_same<decltype(*vou.cend()), const int &>::value));
+  // NOLINTNEXTLINE(modernize-type-traits)
+  EXPECT_TRUE((std::is_same<decltype(*vou.crbegin()), const int &>::value));
+  // NOLINTNEXTLINE(modernize-type-traits)
+  EXPECT_TRUE((std::is_same<decltype(*vou.crend()), const int &>::value));
+#endif
 }
 
 // Test that iterators do not modify elements (compile-time check)
@@ -437,7 +489,8 @@ TEST(VectorOfUniqueTest, Iterator_ModificationNotAllowed) {
   vector_of_unique<int> vou = {1, 2, 3, 4};
   auto const_it = vou.cbegin();
   ASSERT_EQ(*const_it, 1);
-  ASSERT_TRUE(std::is_const_v<std::remove_reference_t<decltype(*const_it)>>);
+  // NOLINTNEXTLINE(modernize-type-traits)
+  ASSERT_TRUE(std::is_const<std::remove_reference_t<decltype(*const_it)>>);
 }
 
 TEST(VectorOfUniqueTest, Clear) {
