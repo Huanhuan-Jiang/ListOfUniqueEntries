@@ -321,4 +321,49 @@ typename vector_of_unique<T, Hash, KeyEqual>::size_type erase_if(
   }
   return r;
 }
+
+// Operators
+template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>>
+bool operator==(const vector_of_unique<T, Hash, KeyEqual> &lhs,
+                const vector_of_unique<T, Hash, KeyEqual> &rhs) {
+  return (lhs.vector() == rhs.vector());
+}
+
+#if __cplusplus < 202002L
+template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>>
+bool operator!=(const vector_of_unique<T, Hash, KeyEqual> &lhs,
+                const vector_of_unique<T, Hash, KeyEqual> &rhs) {
+  return (lhs.vector() != rhs.vector());
+}
+
+template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>>
+bool operator<(const vector_of_unique<T, Hash, KeyEqual> &lhs,
+               const vector_of_unique<T, Hash, KeyEqual> &rhs) {
+  return (lhs.vector() < rhs.vector());
+}
+
+template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>>
+bool operator<=(const vector_of_unique<T, Hash, KeyEqual> &lhs,
+                const vector_of_unique<T, Hash, KeyEqual> &rhs) {
+  return (lhs.vector() <= rhs.vector());
+}
+
+template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>>
+bool operator>(const vector_of_unique<T, Hash, KeyEqual> &lhs,
+               const vector_of_unique<T, Hash, KeyEqual> &rhs) {
+  return (lhs.vector() > rhs.vector());
+}
+
+template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>>
+bool operator>=(const vector_of_unique<T, Hash, KeyEqual> &lhs,
+                const vector_of_unique<T, Hash, KeyEqual> &rhs) {
+  return (lhs.vector() >= rhs.vector());
+}
+#else
+template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>>
+auto operator<=>(const vector_of_unique<T, Hash, KeyEqual> &lhs,
+                 const vector_of_unique<T, Hash, KeyEqual> &rhs) {
+  return (lhs.vector() <=> rhs.vector());
+}
+#endif
 };  // namespace containerofunique
