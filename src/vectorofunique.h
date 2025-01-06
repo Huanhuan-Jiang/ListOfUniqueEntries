@@ -13,12 +13,6 @@
 #define NOEXCEPT_CXX17
 #endif
 
-#if __cplusplus >= 201703L
-#define CONSTEXPR_CXX20 constexpr
-#else
-#define CONSTEXPR_CXX20
-#endif
-
 namespace containerofunique {
 
 template <class T, class Hash = std::hash<T>, class KeyEqual = std::equal_to<T>>
