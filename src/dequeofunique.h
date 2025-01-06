@@ -157,7 +157,7 @@ class deque_of_unique {
     return std::make_pair(pos, false);
   }
 
-#if __cplusplus < 201703L  // Before C++20
+#if __cplusplus < 201703L
   template <class... Args>
   void emplace_front(Args &&...args) {
     if (set_.emplace(args...).second) {
@@ -174,7 +174,7 @@ class deque_of_unique {
   }
 #endif
 
-#if __cplusplus < 201703L  // Before C++20
+#if __cplusplus < 201703L
   template <class... Args>
   void emplace_back(Args &&...args) {
     if (set_.emplace(args...).second) {
