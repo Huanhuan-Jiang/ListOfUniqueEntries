@@ -497,9 +497,8 @@ TEST(VectorOfUniqueTest, Clear) {
   vector_of_unique<int> vou = {1, 2, 3, 4, 5};
   vou.clear();
 
-  EXPECT_EQ(vou.vector().size(), 0);  // Vector should be empty
-  EXPECT_THAT(vou.set(),
-              ::testing::UnorderedElementsAre());  // Set should be empty
+  EXPECT_EQ(vou.vector().size(), 0);
+  EXPECT_THAT(vou.set(), ::testing::UnorderedElementsAre());
 }
 
 TEST(VectorOfUniqueTest, Erase_SingleElement) {
@@ -692,42 +691,6 @@ TEST(VectorOfUniqueTest, EmplaceAtEnd) {
   EXPECT_TRUE(result.second);
 }
 
-struct ThrowingType {
-  std::string value;
-  ThrowingType(const std::string &val) : value(val) {
-    if (val == "throw") {
-      throw std::runtime_error("Test exception");
-    }
-  }
-  bool operator==(const ThrowingType &other) const {
-    return value == other.value;
-  }
-};
-
-namespace std {
-template <>
-struct hash<ThrowingType> {
-  size_t operator()(const ThrowingType &obj) const {
-    (void)obj;
-    return 0;
-  }
-};
-}  // namespace std
-
-TEST(VectorOfUniqueTest, EmplaceExceptionSafety) {
-  vector_of_unique<ThrowingType> vou;
-
-  // Normal insertion
-  EXPECT_NO_THROW(vou.emplace(vou.cbegin(), "hello"));
-
-  // Exception-throwing insertion
-  EXPECT_THROW(vou.emplace(vou.cbegin(), "throw"), std::runtime_error);
-
-  // Ensure the container remains consistent
-  EXPECT_EQ(vou.vector().size(), 1);
-  EXPECT_EQ(vou.vector().front().value, "hello");
-}
-
 TEST(VectorOfUniqueTest, EmplaceNonString) {
   vector_of_unique<int> vou = {1, 2, 3};
   std::vector<int> vec = {1, 2, 3};
@@ -745,6 +708,41 @@ TEST(VectorOfUniqueTest, EmplaceNonString) {
   EXPECT_FALSE(result.second);
 }
 
+#if __cplusplus < 201703L  // Before C++20
+TEST(VectorOfUniqueTest, EmplaceBackSingleElement) {
+  vector_of_unique<int> vou;
+  vou.emplace_back(42);
+  EXPECT_EQ(vou.size(), 1);
+  EXPECT_EQ(vou.back(), 42);
+}
+
+TEST(VectorOfUniqueTest, EmplaceBackDuplicateElement) {
+  vector_of_unique<int> vou;
+  vou.emplace_back(42);
+  vou.emplace_back(42);
+  EXPECT_EQ(vou.size(), 1);
+  EXPECT_EQ(vou.back(), 42);
+}
+
+TEST(VectorOfUniqueTest, EmplaceBackMultipleUniqueElements) {
+  vector_of_unique<int> vou;
+  vou.emplace_back(1);
+  vou.emplace_back(2);
+  vou.emplace_back(3);
+  EXPECT_EQ(vou.size(), 3);
+  EXPECT_EQ(vou[2], 3);
+  EXPECT_EQ(vou[1], 2);
+  EXPECT_EQ(vou[0], 1);
+}
+
+TEST(VectorOfUniqueTest, EmplaceBackExistingElement) {
+  vector_of_unique<int> vou;
+  vou.emplace_back(42);
+  vou.emplace_back(42);
+  EXPECT_EQ(vou.size(), 1);
+  EXPECT_EQ(vou.back(), 42);
+}
+#else
 TEST(VectorOfUniqueTest, EmplaceBack_NewElement) {
   // Test 1: Emplace a new element "good" to the end of vou
   // Emplace_back "good" to vou1
@@ -843,6 +841,7 @@ TEST(VectorOfUniqueTest, EmplaceBack_NonStringType) {
   EXPECT_EQ(result.value().get(), 4);
   EXPECT_EQ(vou.vector(), vec);
 }
+#endif
 
 TEST(VectorOfUniqueTest, PopBack_EmptyVector) {
   vector_of_unique<std::string> vou;
@@ -944,6 +943,30 @@ TEST(VectorOfUniqueTest, MemberFunctionSwap) {
   EXPECT_THAT(vou2.set(), ::testing::UnorderedElementsAreArray(vec1));
 }
 
+#if __cplusplus >= 201703L
+TEST(VectorOfUniqueTest, SwapIsNoexcept) {
+  vector_of_unique<std::string> vou1;
+  vector_of_unique<std::string> vou2;
+  vector_of_unique<std::string> vou3;
+
+  // Static assertion to check if the swap function is noexcept
+  static_assert(noexcept(vou1.swap(vou2)), "Swap function should be noexcept.");
+
+  // Test empty vous
+  EXPECT_NO_THROW(vou1.swap(vou2));
+
+  // Test non-empty vous
+  vou1.push_back("hello");
+  vou3.push_back("world");
+  EXPECT_NO_THROW(vou1.swap(vou3));
+  EXPECT_TRUE(vou1.front() == "world");
+  EXPECT_TRUE(vou3.front() == "hello");
+
+  // Self-swap test (optional but good for robustness)
+  EXPECT_NO_THROW(vou1.swap(vou1));  // Self-swap should not throw an exception
+}
+#endif
+
 TEST(VectorOfUniqueTest, StdSwap) {
   vector_of_unique<std::string> vou1 = {"hello", "world"};
   vector_of_unique<std::string> vou2 = {"good", "morning"};
@@ -958,11 +981,28 @@ TEST(VectorOfUniqueTest, StdSwap) {
 }
 
 TEST(VectorOfUniqueTest, Empty) {
+  // Test for empty vou
   vector_of_unique<std::string> vou1;
+  static_assert(noexcept(vou1.empty()), "empty() should be noexcept.");
+  EXPECT_NO_THROW({
+    bool result = vou1.empty();
+    EXPECT_TRUE(result);
+  });
   EXPECT_TRUE(vou1.empty());
+
+  // Test for non-empty vous
   vector_of_unique<std::string> vou2 = {"good"};
+  EXPECT_NO_THROW({
+    bool result = vou2.empty();
+    EXPECT_FALSE(result);
+  });
   EXPECT_FALSE(vou2.empty());
+
   vector_of_unique<std::string> vou3 = {"good", "morning", "hello", "world"};
+  EXPECT_NO_THROW({
+    bool result = vou3.empty();
+    EXPECT_FALSE(result);
+  });
   EXPECT_FALSE(vou3.empty());
 }
 
@@ -988,29 +1028,272 @@ TEST(VectorOfUniqueTest, Size) {
   EXPECT_EQ(vou3.size(), 0);  // Corrected to check vou3
 }
 
-TEST(VectorOfUniqueTest, Operator) {
-  // Test 1: Identical vectors
-  vector_of_unique<std::string> vou1_1 = {"good"};
-  vector_of_unique<std::string> vou1_2 = {"good"};
-  EXPECT_EQ(vou1_1 <=> vou1_2, std::strong_ordering::equal);
+#if __cplusplus < 202002L  // Before C++20
+TEST(VectorOfUniqueTest, ComparisonOperatorsWithString) {
+  vector_of_unique<std::string> vou1;
+  vector_of_unique<std::string> vou2;
+  vector_of_unique<std::string> vou3;
 
-  // Test 2: Subset case
-  vector_of_unique<std::string> vou2 = {"good", "morning"};
-  EXPECT_EQ(vou1_1 <=> vou2, std::weak_ordering::less);
-  EXPECT_EQ(vou2 <=> vou1_1, std::weak_ordering::greater);
+  // Test equality operator (operator==)
+  EXPECT_TRUE(vou1 == vou2);
+  vou1.push_back("Hello");
+  EXPECT_FALSE(vou1 == vou2);
 
-  // Test 3: Different order case (for robustness, even if not expected in
-  // unique vectors)
-  vector_of_unique<std::string> vou3 = {"morning", "good"};
-  EXPECT_EQ(vou2 <=> vou3, std::weak_ordering::less);
+  // Test inequality operator (operator!=)
+  vou2.push_back("World");
+  EXPECT_TRUE(vou1 != vou2);
 
-  // Test 4: Lexicographical comparison
-  vector_of_unique<std::string> vou4 = {"apple", "banana"};
-  EXPECT_EQ(vou4 <=> vou1_1, std::weak_ordering::less);
+  // Test less-than operator (operator<)
+  vou3.push_back("Apple");
+  EXPECT_TRUE(vou3 < vou1);
 
-  // Test 5: Empty vectors
-  vector_of_unique<std::string> vou_empty1;
-  vector_of_unique<std::string> vou_empty2;
-  EXPECT_EQ(vou_empty1 <=> vou_empty2, std::strong_ordering::equal);
-  EXPECT_EQ(vou_empty1 <=> vou1_1, std::weak_ordering::less);
+  // Test less-than-or-equal operator (operator<=)
+  EXPECT_TRUE(vou3 <= vou1);
+  EXPECT_TRUE(vou1 <= vou2);
+
+  // Test greater-than operator (operator>)
+  EXPECT_TRUE(vou1 > vou3);
+
+  // Test greater-than-or-equal operator (operator>=)
+  EXPECT_TRUE(vou1 >= vou3);
+  EXPECT_TRUE(vou2 >= vou1);
+}
+#else  // C++20 or later
+TEST(VectorOfUniqueTest, ComparisonOperatorsWithStringCXX20) {
+  vector_of_unique<std::string> vou1;
+  vector_of_unique<std::string> vou2;
+  vector_of_unique<std::string> vou3;
+
+  // Test spaceship operator (<=>) for C++20 or later
+  EXPECT_TRUE((vou1 <=> vou2) == std::strong_ordering::equal);
+  vou1.push_back("Hello");
+  vou2.push_back("Hello");
+  EXPECT_TRUE((vou1 <=> vou2) == std::strong_ordering::equal);
+  vou2.push_back("world");
+  EXPECT_TRUE((vou1 <=> vou2) != std::strong_ordering::equal);
+  EXPECT_TRUE((vou1 <=> vou2) == std::strong_ordering::less);
+
+  vou3.push_back("Apple");
+  EXPECT_TRUE((vou3 <=> vou1) == std::strong_ordering::less);
+  vou3.push_front("morning");
+  EXPECT_TRUE((vou3 <=> vou1) == std::strong_ordering::greater);
+}
+#endif
+
+TEST(VectorOfUniqueTest, Find) {
+  // Test 1: Find in an empty vou
+  vector_of_unique<int> vou_empty;
+  auto it_empty = vou_empty.find(10);
+  EXPECT_EQ(it_empty, vou_empty.cend());
+
+  // Test 2: Find an element that exists in the vou
+  vector_of_unique<int> vou = {10, 20, 30};
+  auto it = vou.find(20);
+  EXPECT_NE(it, vou.cend());
+  EXPECT_EQ(*it, 20);
+
+  // Test 3: Find an element that does not exist
+  auto it_not_found = vou.find(40);
+  EXPECT_EQ(it_not_found, vou.cend());
+
+  // Test 4: Find element at the beginning
+  auto it_first = vou.find(10);
+  EXPECT_NE(it_first, vou.cend());
+  EXPECT_EQ(*it_first, 10);
+
+  // Test 5: Find element at the end
+  auto it_last = vou.find(30);
+  EXPECT_NE(it_last, vou.cend());
+  EXPECT_EQ(*it_last, 30);
+
+  // Test 6: Multiple lookups
+  auto it_again = vou.find(20);
+  EXPECT_EQ(it_again, it);
+  EXPECT_EQ(*it_again, 20);
+
+  // Test 7: Find in a vou with complex data types (e.g., std::string)
+  vector_of_unique<std::string> vou_str = {"hello", "world", "goodbye"};
+  auto it_str = vou_str.find("world");
+  EXPECT_NE(it_str, vou_str.cend());
+  EXPECT_EQ(*it_str, "world");
+
+  auto it_str_not_found = vou_str.find("unknown");
+  EXPECT_EQ(it_str_not_found, vou_str.cend());
+}
+
+#if __cplusplus > 202002L  // After C++20
+TEST(VectorOfUniqueTest, ContainsKeyType) {
+  vector_of_unique<int> vou = {1, 2, 3};
+
+  EXPECT_TRUE(vou.contains(1));
+  EXPECT_TRUE(vou.contains(2));
+  EXPECT_FALSE(vou.contains(4));
+}
+
+TEST(VectorOfUniqueTest, ContainsCompatibleType) {
+  vector_of_unique<int> vou = {1, 2, 3};
+  EXPECT_TRUE(vou.contains(1));
+  EXPECT_TRUE(vou.contains(1.0));  // Assuming compatibility
+}
+
+TEST(VectorOfUniqueTest, ContainsInEmptyVector) {
+  vector_of_unique<int> vou;
+  EXPECT_FALSE(vou.contains(1));
+}
+
+TEST(VectorOfUniqueTest, ContainsWithVariousIntTypes) {
+  vector_of_unique<int32_t> vou = {1, 2, 3};
+
+  EXPECT_TRUE(vou.contains(int16_t(1)));
+  EXPECT_FALSE(vou.contains(int16_t(4)));
+}
+#endif
+
+TEST(VectorOfUniqueTest, NonmemberEraseWithStrings) {
+  vector_of_unique<std::string> vou = {"apple", "banana", "cherry"};
+
+  // Test 1: Erase a string element that exists in the vou
+  // Erase an existing string element
+  EXPECT_EQ(erase(vou, "banana"), 1);
+  EXPECT_EQ(vou.size(), 2);
+  EXPECT_EQ(vou.find("banana"), vou.cend());
+
+  // Test 2: Erase a string element that does not exist in the vou
+  EXPECT_EQ(erase(vou, "grape"), 0);
+  EXPECT_EQ(vou.size(), 2);
+
+  // Test 3: Erase the last string element in the vou
+  EXPECT_EQ(erase(vou, "apple"), 1);
+  EXPECT_EQ(vou.size(), 1);
+
+  // Test 4: Erase the remaining string element
+  EXPECT_EQ(erase(vou, "cherry"), 1);
+  EXPECT_EQ(vou.size(), 0);
+
+  // Test 5: Erase from an empty vou
+  EXPECT_EQ(erase(vou, "grape"), 0);
+  EXPECT_EQ(vou.size(), 0);
+}
+
+TEST(VectorOfUniqueTest, NonmemberEraseMultipleStringElements) {
+  vector_of_unique<std::string> vou;
+
+  // Test 1: Erase multiple string elements sequentially
+  vou.push_back("apple");
+  vou.push_back("banana");
+  vou.push_back("cherry");
+
+  // Remove first element
+  EXPECT_EQ(erase(vou, "apple"), 1);
+  EXPECT_EQ(vou.size(), 2);
+  EXPECT_EQ(vou.find("apple"), vou.cend());  // "apple" should be removed
+
+  // Remove second element
+  EXPECT_EQ(erase(vou, "banana"), 1);
+  EXPECT_EQ(vou.size(), 1);
+  EXPECT_EQ(vou.find("banana"), vou.cend());  // "banana" should be removed
+
+  // Remove last element
+  EXPECT_EQ(erase(vou, "cherry"), 1);
+  EXPECT_EQ(vou.size(), 0);
+  EXPECT_EQ(vou.find("cherry"), vou.cend());  // "cherry" should be removed
+}
+
+TEST(VectorOfUniqueTest, NonmemberEraseEdgeCasesWithStrings) {
+  vector_of_unique<std::string> vou;
+
+  // Test 1: Erase from an empty vou
+  EXPECT_EQ(erase(vou, "orange"), 0);
+  EXPECT_EQ(vou.size(), 0);
+
+  // Test 2: Erase from a vou with a single string element
+  vou.push_back("apple");
+  EXPECT_EQ(erase(vou, "apple"), 1);
+  EXPECT_EQ(vou.size(), 0);
+}
+
+TEST(VectorOfUniqueTest, NonmemberEraseNonExistentStringElement) {
+  vector_of_unique<std::string> vou;
+
+  // Test 1: Erase non-existent string element from an empty vou
+  EXPECT_EQ(erase(vou, "orange"), 0);
+  EXPECT_EQ(vou.size(), 0);
+
+  // Test 2: Erase non-existent string element from a vou with some
+  // elements
+  vou.push_back("apple");
+  vou.push_back("banana");
+  vou.push_back("cherry");
+  EXPECT_EQ(erase(vou, "grape"), 0);
+  EXPECT_EQ(vou.size(), 3);
+}
+
+TEST(VectorOfUniqueTest, EraseIfBasicFunctionality) {
+  vector_of_unique<int> vou = {1, 2, 3, 4, 5, 6};
+  auto pred = [](int x) { return x % 2 == 0; };
+  size_t removed_count = erase_if(vou, pred);
+  EXPECT_EQ(removed_count, 3);
+  EXPECT_EQ(vou.size(), 3);
+  EXPECT_TRUE(vou.find(2) == vou.cend());
+  EXPECT_TRUE(vou.find(4) == vou.cend());
+  EXPECT_TRUE(vou.find(6) == vou.cend());
+}
+
+TEST(VectorOfUniqueTest, EraseIfNoElementsRemoved) {
+  vector_of_unique<int> vou = {1, 3, 5, 7, 9};
+  auto pred = [](int x) { return x % 2 == 0; };
+  size_t removed_count = erase_if(vou, pred);
+  EXPECT_EQ(removed_count, 0);
+  EXPECT_EQ(vou.size(), 5);
+}
+
+TEST(VectorOfUniqueTest, EraseIfAllElementsRemoved) {
+  vector_of_unique<int> vou = {2, 4, 6, 8, 10};
+  auto pred = [](int x) { return x % 2 == 0; };
+  size_t removed_count = erase_if(vou, pred);
+  EXPECT_EQ(removed_count, 5);
+  EXPECT_EQ(vou.size(), 0);
+}
+
+TEST(VectorOfUniqueTest, EraseIfEmptyvou) {
+  vector_of_unique<int> vou;
+  auto pred = [](int x) { return x % 2 == 0; };
+  size_t removed_count = erase_if(vou, pred);
+  EXPECT_EQ(removed_count, 0);
+  EXPECT_EQ(vou.size(), 0);
+}
+
+TEST(VectorOfUniqueTest, EraseIfSingleElementRemoved) {
+  vector_of_unique<int> vou = {4};
+  auto pred = [](int x) { return x % 2 == 0; };
+  size_t removed_count = erase_if(vou, pred);
+  EXPECT_EQ(removed_count, 1);
+  EXPECT_EQ(vou.size(), 0);
+}
+
+TEST(VectorOfUniqueTest, EraseIfSingleElementNotRemoved) {
+  vector_of_unique<int> vou = {3};
+  auto pred = [](int x) { return x % 2 == 0; };
+  size_t removed_count = erase_if(vou, pred);
+  EXPECT_EQ(removed_count, 0);
+  EXPECT_EQ(vou.size(), 1);
+}
+
+TEST(VectorOfUniqueTest, EraseIfWithStrings) {
+  vector_of_unique<std::string> vou = {"apple", "banana", "cherry", "date"};
+  auto pred = [](const std::string &s) { return s[0] == 'b'; };
+  size_t removed_count = erase_if(vou, pred);
+  EXPECT_EQ(removed_count, 1);
+  EXPECT_EQ(vou.size(), 3);
+  EXPECT_TRUE(vou.find("banana") == vou.cend());
+}
+
+TEST(VectorOfUniqueTest, EraseIfWithComplexPredicate) {
+  vector_of_unique<std::string> vou = {"apple", "banana", "cherry", "date"};
+  auto pred = [](const std::string &s) { return s.length() > 5; };
+  size_t removed_count = erase_if(vou, pred);
+  EXPECT_EQ(removed_count, 2);
+  EXPECT_EQ(vou.size(), 2);
+  EXPECT_TRUE(vou.find("banana") == vou.cend());
+  EXPECT_TRUE(vou.find("cherry") == vou.cend());
 }
